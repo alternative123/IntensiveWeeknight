@@ -8,22 +8,55 @@ function [F, M, trpy, drpy] = controller(qd, t, qn, params)
 
 % =================== Your code goes here ===================
 
+% Naming conventions:
+% d stands for 'dot', dd stands for 'double dot' (i.e. derivatives)
+% y_a means 'y sub a'
+if any(isnan(qd{qn}.pos))
+    fprintf('Got here\n')
+end
+
+%k_pz = 10;
+%k_dz = 3.75
+% Control parameters
+Kp = diag([1,1,1]);
+Kd = diag([1,1,1]);
+Kp_angle = diag([1,1,1]);
+Kd_angle = diag([1,1,1]);
+% k_pphi = 10;
+% k_dphi = 5;
+
+% Error terms
+% Position error
+err = (qd{qn}.pos_des - qd{qn}.pos);
+% Compute error orthogonal to trajectory
+if norm(qd{qn}.vel_des) > 0
+    errp = err - ((qd{qn}.vel_des'*err)/(qd{qn}.vel_des'*qd{qn}.vel_des))*qd{qn}.vel_des;
+else % Not sure what to do here
+    errp = err;
+end
+    
+% Velocity Error
+errv = (qd{qn}.vel_des - qd{qn}.vel);
+
+% Calculate desired accelerations
+rdd_des = qd{qn}.acc_des + Kd*errv + Kp*errp;
+
 % Desired roll, pitch and yaw
-phi_des = 0;
-theta_des = 0;
-psi_des = 0;
+psi_des = qd{qn}.yaw_des;
+phi_des = (1/params.grav)*(rdd_des(1)*sin(psi_des) - rdd_des(2)*cos(psi_des));
+theta_des = (1/params.grav)*(rdd_des(1)*cos(psi_des) + rdd_des(2)*sin(psi_des));
+angle_des = [ phi_des; theta_des; psi_des ];
+anglev_des = [0; 0; qd{qn}.yawdot_des];
+          
+% Control signals
+u1 = params.mass*(params.grav + rdd_des(3));
+u2 = Kp_angle*(angle_des - qd{qn}.euler) + Kd_angle*(anglev_des - qd{qn}.omega);
 
 % Thurst
-k_pz = 10;
-k_dz = 3.75;
-e = (qd{qn}.pos_des - qd{qn}.pos);
-edot = (qd{qn}.vel_des - qd{qn}.vel);
-F    = params.mass*(params.grav + qd{qn}.acc_des(3) + k_dz*edot(3) + k_pz*e(3));
-
+F    = u1;
 % Moment
-k_pphi = 1;
-k_dphi = 1;
-M    = 0*[ 0; 0; k_pphi + k_dphi]; % You should fill this in
+M    = u2; % You should fill this in
+
 % =================== Your code ends here ===================
 
 % Output trpy and drpy as in hardware
