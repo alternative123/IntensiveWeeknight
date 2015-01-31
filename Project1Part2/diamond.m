@@ -10,6 +10,10 @@ acc = [0; 0; 0];
 yaw = 0;
 yawdot = 0;
 
+if t > 0.5
+    pos = [0; 0; 1];
+end
+
 % =================== Your code ends here ===================
 
 desired_state.pos = pos(:);

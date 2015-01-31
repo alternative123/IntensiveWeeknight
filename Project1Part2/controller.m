@@ -14,10 +14,16 @@ theta_des = 0;
 psi_des = 0;
 
 % Thurst
-F    = 0;
+k_pz = 10;
+k_dz = 3.75;
+e = (qd{qn}.pos_des - qd{qn}.pos);
+edot = (qd{qn}.vel_des - qd{qn}.vel);
+F    = params.mass*(params.grav + qd{qn}.acc_des(3) + k_dz*edot(3) + k_pz*e(3));
 
 % Moment
-M    = zeros(3,1); % You should fill this in
+k_pphi = 1;
+k_dphi = 1;
+M    = 0*[ 0; 0; k_pphi + k_dphi]; % You should fill this in
 % =================== Your code ends here ===================
 
 % Output trpy and drpy as in hardware

@@ -1,6 +1,7 @@
 # General files
 *~
 *.asv
+.nfs*
 
 # For LaTeX files
 *.aux
