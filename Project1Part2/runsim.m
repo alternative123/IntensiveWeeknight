@@ -10,15 +10,14 @@ addpath('utils')
 addpath('trajectories')
 
 % You need to implement trajhandle and controlhandle
-
 % trajectory generator
-trajhandle = @simplepath;
+trajhandle = @circle;
 
 % controller
 controlhandle = @controller;
 
 % real-time 
-real_time = true;
+real_time = false;
 
 % *********** YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW **********
 % number of quadrotors
@@ -141,3 +140,4 @@ if(~isempty(err))
 end
 
 fprintf('finished.\n')
+

@@ -11,19 +11,21 @@ function [F, M, trpy, drpy] = controller(qd, t, qn, params)
 % Naming conventions:
 % d stands for 'dot', dd stands for 'double dot' (i.e. derivatives)
 % y_a means 'y sub a'
-if any(isnan(qd{qn}.pos))
-    fprintf('Got here\n')
-end
 
 %k_pz = 10;
 %k_dz = 3.75
 % Control parameters
-Kp = diag([1,1,1]);
-Kd = diag([1,1,1]);
-Kp_angle = diag([1,1,1]);
-Kd_angle = diag([1,1,1]);
-% k_pphi = 10;
-% k_dphi = 5;
+Kp = [ 1; 2*2; 15.0 ]; % [ 1; 3.1;   10 ];
+Kd = [ 1; 2*1.71;  5.0 ]; % [ 1; 2.5; 3.75 ];
+
+Kp_phi = 40/10;
+Kd_phi = 10/10;
+
+Kp_theta = 1;
+Kd_theta = 1;
+
+Kp_psi = 1;
+Kd_psi = 1;
 
 % Error terms
 % Position error
@@ -39,23 +41,23 @@ end
 errv = (qd{qn}.vel_des - qd{qn}.vel);
 
 % Calculate desired accelerations
-rdd_des = qd{qn}.acc_des + Kd*errv + Kp*errp;
+rdd_des = qd{qn}.acc_des + Kd.*errv + Kp.*errp;
 
 % Desired roll, pitch and yaw
 psi_des = qd{qn}.yaw_des;
 phi_des = (1/params.grav)*(rdd_des(1)*sin(psi_des) - rdd_des(2)*cos(psi_des));
 theta_des = (1/params.grav)*(rdd_des(1)*cos(psi_des) + rdd_des(2)*sin(psi_des));
-angle_des = [ phi_des; theta_des; psi_des ];
-anglev_des = [0; 0; qd{qn}.yawdot_des];
-          
+
 % Control signals
-u1 = params.mass*(params.grav + rdd_des(3));
-u2 = Kp_angle*(angle_des - qd{qn}.euler) + Kd_angle*(anglev_des - qd{qn}.omega);
+% u1 = ;
+% u2 = Kp_angle.*(angle_des - qd{qn}.euler) + Kd_angle.*(anglev_des - qd{qn}.omega);
 
 % Thurst
-F    = u1;
+F    = params.mass*(params.grav + rdd_des(3));
 % Moment
-M    = u2; % You should fill this in
+M    = [ Kp_phi*(phi_des-qd{qn}.euler(1)) - Kd_phi*qd{qn}.omega(1);
+         Kp_theta*(theta_des-qd{qn}.euler(2)) - Kd_theta*qd{qn}.omega(2);
+         Kp_psi*(psi_des-qd{qn}.euler(3)) + Kd_psi*(qd{qn}.yawdot_des-qd{qn}.omega(3)) ];
 
 % =================== Your code ends here ===================
 
