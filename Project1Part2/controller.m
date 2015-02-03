@@ -15,17 +15,17 @@ function [F, M, trpy, drpy] = controller(qd, t, qn, params)
 %k_pz = 10;
 %k_dz = 3.75
 % Control parameters
-Kp = [ 1; 2*2; 15.0 ]; % [ 1; 3.1;   10 ];
-Kd = [ 1; 2*1.71;  5.0 ]; % [ 1; 2.5; 3.75 ];
+Kp = [19*[1;1];12]; % [19*[1;1];12];
+Kd = [33*[1;1];30]; % [33*[1;1];30];
 
-Kp_phi = 40/10;
-Kd_phi = 10/10;
+Kp_phi = 3.2/10;
+Kd_phi = 1.1/10;
 
-Kp_theta = 1;
-Kd_theta = 1;
+Kp_theta = Kp_phi;
+Kd_theta = Kd_phi;
 
-Kp_psi = 1;
-Kd_psi = 1;
+Kp_psi = 0.1;
+Kd_psi = 0.1;
 
 % Error terms
 % Position error
@@ -45,19 +45,23 @@ rdd_des = qd{qn}.acc_des + Kd.*errv + Kp.*errp;
 
 % Desired roll, pitch and yaw
 psi_des = qd{qn}.yaw_des;
-phi_des = (1/params.grav)*(rdd_des(1)*sin(psi_des) - rdd_des(2)*cos(psi_des));
-theta_des = (1/params.grav)*(rdd_des(1)*cos(psi_des) + rdd_des(2)*sin(psi_des));
+
+phi_des = (1/params.grav)*(rdd_des(1)*sin(qd{qn}.euler(3)) - rdd_des(2)*cos(qd{qn}.euler(3)));
+phi_des = sign(phi_des)*min(abs(phi_des),params.maxangle); % Clamp at maximum
+
+theta_des = (1/params.grav)*(rdd_des(1)*cos(qd{qn}.euler(3)) + rdd_des(2)*sin(qd{qn}.euler(3)));
+theta_des = sign(theta_des)*min(abs(theta_des),params.maxangle); % Clamp at maximum
 
 % Control signals
-% u1 = ;
-% u2 = Kp_angle.*(angle_des - qd{qn}.euler) + Kd_angle.*(anglev_des - qd{qn}.omega);
+u2 = [ Kp_phi*(phi_des-qd{qn}.euler(1)) - Kd_phi*qd{qn}.omega(1);
+        Kp_theta*(theta_des-qd{qn}.euler(2)) - Kd_theta*qd{qn}.omega(2);
+        Kp_psi*(psi_des-qd{qn}.euler(3)) + Kd_psi*(qd{qn}.yawdot_des-qd{qn}.omega(3)) ];
+u1 = params.mass*(params.grav + rdd_des(3));
 
 % Thurst
-F    = params.mass*(params.grav + rdd_des(3));
+F    = min(params.maxF,max(params.minF,u1));
 % Moment
-M    = [ Kp_phi*(phi_des-qd{qn}.euler(1)) - Kd_phi*qd{qn}.omega(1);
-         Kp_theta*(theta_des-qd{qn}.euler(2)) - Kd_theta*qd{qn}.omega(2);
-         Kp_psi*(psi_des-qd{qn}.euler(3)) + Kd_psi*(qd{qn}.yawdot_des-qd{qn}.omega(3)) ];
+M    = u2;
 
 % =================== Your code ends here ===================
 

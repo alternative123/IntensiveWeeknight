@@ -11,7 +11,7 @@ addpath('trajectories')
 
 % You need to implement trajhandle and controlhandle
 % trajectory generator
-trajhandle = @circle;
+trajhandle = @diamond;
 
 % controller
 controlhandle = @controller;
@@ -24,7 +24,7 @@ real_time = false;
 nquad = 1;
 
 % max time
-time_tol = 15;
+time_tol = 45;
 
 % parameters for simulation
 params = nanoplus();
