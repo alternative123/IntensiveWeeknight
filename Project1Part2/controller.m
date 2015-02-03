@@ -15,7 +15,7 @@ function [F, M, trpy, drpy] = controller(qd, t, qn, params)
 %k_pz = 10;
 %k_dz = 3.75
 % Control parameters
-Kp = [19*[1;1];12]; % [19*[1;1];12];
+Kp = [55*[1;1];55]; % [19*[1;1];12];
 Kd = [33*[1;1];30]; % [33*[1;1];30];
 
 Kp_phi = 3.2/10;
@@ -31,11 +31,11 @@ Kd_psi = 0.1;
 % Position error
 err = (qd{qn}.pos_des - qd{qn}.pos);
 % Compute error orthogonal to trajectory
-if norm(qd{qn}.vel_des) > 0
-    errp = err - ((qd{qn}.vel_des'*err)/(qd{qn}.vel_des'*qd{qn}.vel_des))*qd{qn}.vel_des;
-else % Not sure what to do here
+% if norm(qd{qn}.vel_des) > 0
+%     errp = err - ((qd{qn}.vel_des'*err)/(qd{qn}.vel_des'*qd{qn}.vel_des))*qd{qn}.vel_des;
+% else % Not sure what to do here
     errp = err;
-end
+% end
     
 % Velocity Error
 errv = (qd{qn}.vel_des - qd{qn}.vel);
