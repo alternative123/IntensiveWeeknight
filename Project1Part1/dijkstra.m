@@ -64,13 +64,13 @@ end
 toc
 tic
 % Precompute local edge weights
-% allcomb = combvec(-1:1,-1:1,-1:1)'; % 26-connected
-allcomb = [ 1  0  0;
-           -1  0  0;
-            0  1  0;
-            0 -1  0;
-            0  0 -1;
-            0  0  1 ]; % 6-connected
+allcomb = combvec(-1:1,-1:1,-1:1)'; % 26-connected
+% allcomb = [ 1  0  0;
+%            -1  0  0;
+%             0  1  0;
+%             0 -1  0;
+%             0  0 -1;
+%             0  0  1 ]; % 6-connected
 cx = allcomb(:,1); % cx for 'combinations of -1,0,1 for x'.
 cy = allcomb(:,2); % Similar for these two
 cz = allcomb(:,3);
