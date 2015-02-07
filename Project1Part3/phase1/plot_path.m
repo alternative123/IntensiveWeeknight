@@ -17,6 +17,7 @@ for i = 1:size(map.obstacles,1)
 end
 
 plot3(path(:,1),path(:,2),path(:,3))
+scatter3(path(:,1),path(:,2),path(:,3))
 
 axis image;
 view(3);
