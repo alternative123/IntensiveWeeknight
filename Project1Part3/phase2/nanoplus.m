@@ -23,8 +23,8 @@ params.maxangle = 40*pi/180; %you can specify the maximum commanded angle here
 params.maxF = 2.5*m*g;
 params.minF = 0.05*m*g;
 
-% You can add any fiels you want in params
+% You can add any fields you want in params
 % for example you can add your controller gains by
-% params.k = 0, and the will be passed into controller.m
+% params.k = 0, and they will be passed into controller.m
 
 end
