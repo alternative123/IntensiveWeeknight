@@ -23,8 +23,8 @@ for i = 1:n-1
     bx(2*i)   = X(j);
     by(2*i-1) = Y(i);
     by(2*i)   = Y(j);
-    bz(2*i-1) = Y(i);
-    bz(2*i)   = Y(j);
+    bz(2*i-1) = Z(i);
+    bz(2*i)   = Z(j);
 end
 
 % Velocities at the boundaries
@@ -112,7 +112,7 @@ az = sum(spline.Cz(t_ind,:).*[6*t 2*ones(size(t)) zeros(size(t)) zeros(size(t))]
 
 end
 
-function [ px, py, pz ] = single_pos(t,spline)
+function p = single_pos(t,spline)
 % Evalute the spline determined by coefficients Cx, Cy, Cz in R^(n-1 x m)
 % (m the order of the spline, n the number of points). T must be 1 x n, and
 % t must be 1 x 1 (k being the numer of points we are evaluating)
@@ -121,13 +121,14 @@ function [ px, py, pz ] = single_pos(t,spline)
 t_ind = min(t_ind,size(spline.Cx,1));
 
 % Create the appropriate positions using the coefficients
-px = spline.Cx(t_ind,:)*[t^3 t^2 t 1]';
-py = spline.Cy(t_ind,:)*[t^3 t^2 t 1]';
-pz = spline.Cz(t_ind,:)*[t^3 t^2 t 1]';
+p = zeros(3,1);
+p(1) = spline.Cx(t_ind,:)*[t^3 t^2 t 1]';
+p(2) = spline.Cy(t_ind,:)*[t^3 t^2 t 1]';
+p(3) = spline.Cz(t_ind,:)*[t^3 t^2 t 1]';
 
 end
 
-function [ vx, vy, vz ] = single_vel(t,spline)
+function v = single_vel(t,spline)
 % Evalute the spline determined by coefficients Cx, Cy, Cz in R^(n-1 x m)
 % (m the order of the spline, n the number of points). T must be 1 x n, and
 % t must be 1 x 1 (k being the numer of points we are evaluating)
@@ -136,13 +137,14 @@ function [ vx, vy, vz ] = single_vel(t,spline)
 t_ind = min(t_ind,size(spline.Cx,1));
 
 % Create the appropriate positions using the coefficients
-vx = spline.Cx(t_ind,:)*[3*t^2 2*t 1 0]';
-vy = spline.Cy(t_ind,:)*[3*t^2 2*t 1 0]';
-vz = spline.Cz(t_ind,:)*[3*t^2 2*t 1 0]';
+v = zeros(3,1);
+v(1) = spline.Cx(t_ind,:)*[3*t^2 2*t 1 0]';
+v(2) = spline.Cy(t_ind,:)*[3*t^2 2*t 1 0]';
+v(3) = spline.Cz(t_ind,:)*[3*t^2 2*t 1 0]';
 
 end
 
-function [ ax, ay, az ] = single_acc(t,spline)
+function a = single_acc(t,spline)
 % Evalute the spline determined by coefficients Cx, Cy, Cz in R^(n-1 x m)
 % (m the order of the spline, n the number of points). T must be 1 x n, and
 % t must be 1 x 1 (k being the numer of points we are evaluating)
@@ -151,8 +153,9 @@ function [ ax, ay, az ] = single_acc(t,spline)
 t_ind = min(t_ind,size(spline.Cx,1));
 
 % Create the appropriate positions using the coefficients
-ax = spline.Cx(t_ind,:).*[6*t 2 0 0];
-ay = spline.Cy(t_ind,:).*[6*t 2 0 0];
-az = spline.Cz(t_ind,:).*[6*t 2 0 0];
+a = zeros(3,1);
+a(1) = spline.Cx(t_ind,:)*[6*t 2 0 0]';
+a(2) = spline.Cy(t_ind,:)*[6*t 2 0 0]';
+a(3) = spline.Cz(t_ind,:)*[6*t 2 0 0]';
 
 end

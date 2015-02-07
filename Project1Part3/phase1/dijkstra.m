@@ -41,7 +41,6 @@ xyzToInd = @(x,y,z) xToXind(x) + nx*(yToYind(y)-1) + nx*ny*(zToZind(z)-1);
 
 % Generate collision table
 freespace = true(map.gridsize);
-tic
 [x,y] = meshgrid(1:map.gridsize(1), 1:map.gridsize(2));
 for o = 1:size(map.obstacles,1)
     box = map.obstacles(o,:);
@@ -61,8 +60,7 @@ for o = 1:size(map.obstacles,1)
             reshape(freepoints,map.gridsize([2 1]))';
     end
 end
-toc
-tic
+
 % Precompute local edge weights
 allcomb = combvec(-1:1,-1:1,-1:1)'; % 26-connected
 % allcomb = [ 1  0  0;
@@ -100,8 +98,8 @@ else
 end
 
 t = 0;
-toc
-tic
+
+
 % Begin Djikstras
 while true % Begin loop
     % Get min node and cost
@@ -159,7 +157,7 @@ while true % Begin loop
     %    fprintf('%d with %f %% done... \n',t, 1-(sum(sum(sum(freespace)))/numel(freespace)));
     %end
 end
-toc
+
 % If we get here something went seriously wrong...
 
 path = [];
