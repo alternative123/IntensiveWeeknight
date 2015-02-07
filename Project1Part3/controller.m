@@ -15,7 +15,7 @@ function [F, M, trpy, drpy] = controller(qd, t, qn, params)
 %k_pz = 10;
 %k_dz = 3.75
 % Control parameters
-Kp = [20*[1;1];20]; % [19*[1;1];12];
+Kp = [25*[1;1];25]; % [19*[1;1];12];
 Kd = [33*[1;1];30]; % [33*[1;1];30];
 
 Kp_phi = 3.2/10;
