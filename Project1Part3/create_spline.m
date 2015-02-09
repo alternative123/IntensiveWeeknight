@@ -1,15 +1,27 @@
-function spline = create_spline(X,Y,Z,T)
+function spline = create_spline(path)
 % Create spline object
 % X,Y,Z are the points we want to interpolate (1 x n)
 % T is the times we want to be at those points (1 x n)
 
+% Figure out times
+avgvel = 2.5; % HOW DO WE KNOW THIS??? This is just a guess
+pathlengths=sqrt(sum(diff(path).^2,2));
+T = [0; cumsum(pathlengths/avgvel)]';
+
+X=path(:,1);
+Y=path(:,2);
+Z=path(:,3);
 n = length(T); % Number of points
 m = 3+1; % Order of the polynomial
 % Number of position constraints: 
-A = zeros(m*(n-1));
-bx = zeros(m*(n-1),1);
-by = zeros(m*(n-1),1);
-bz = zeros(m*(n-1),1);
+% A = zeros(m*(n-1));
+% bx = zeros(m*(n-1),1);
+% by = zeros(m*(n-1),1);
+% bz = zeros(m*(n-1),1);
+A = zeros(m*(n-1)+2,m*(n-1));
+bx = zeros(m*(n-1)+2,1);
+by = zeros(m*(n-1)+2,1);
+bz = zeros(m*(n-1)+2,1);
 
 % Positions
 for i = 1:n-1
@@ -45,9 +57,17 @@ for i = 1:n-2
     A(i+offset,(1:m)+m*(i)) = -[6*T(j) 2 0 0];
 end
 
-% Endpoint velocities
-A(end-1,1:m) = [3*T(1)^2 2*T(1) 1 0];
-A(end,(1:m)+m*(n-2)) = [3*T(n)^2 2*T(n) 1 0];
+% Endpoint velocities - only velocities constrained
+% A(end-1,1:m)         = [3*T(1)^2 2*T(1) 1 0];
+% A(end,(1:m)+m*(n-2)) = [3*T(n)^2 2*T(n) 1 0];
+% Endpoint velocities - only velocities and accelerations constrained
+A(end-3,1:m)           = [3*T(1)^2 2*T(1) 1 0];
+A(end-2,(1:m)+m*(n-2)) = [3*T(n)^2 2*T(n) 1 0];
+
+% Endpoint accelerations (overconstraining system)
+A(end-1,1:m)         = [6*T(1) 2 0 0];
+A(end,(1:m)+m*(n-2)) = [6*T(n) 2 0 0];
+
 
 % Compute coeffcients and create the object
 spline.T = T;
@@ -112,6 +132,7 @@ az = sum(spline.Cz(t_ind,:).*[6*t 2*ones(size(t)) zeros(size(t)) zeros(size(t))]
 
 end
 
+% Evaluate only one thing
 function p = single_pos(t,spline)
 % Evalute the spline determined by coefficients Cx, Cy, Cz in R^(n-1 x m)
 % (m the order of the spline, n the number of points). T must be 1 x n, and

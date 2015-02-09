@@ -29,7 +29,7 @@ xoffset = map.xy_res/2;
 yoffset = map.xy_res/2;
 zoffset = map.z_res/2;
 
-% Helper functions for converting between indeces and 3D coordinates
+% Helper functions for converting between indices and 3D coordinates
 xindToX = @(x) x*map.xy_res + map.boundary(1,1) - xoffset;
 yindToY = @(y) y*map.xy_res + map.boundary(1,2) - yoffset;
 zindToZ = @(z) z*map.z_res + map.boundary(1,3) - zoffset;
@@ -45,7 +45,7 @@ freespace = true(map.gridsize);
 for o = 1:size(map.obstacles,1)
     box = map.obstacles(o,:);
     for z = 1:map.gridsize(3)
-        % Calculate 3d positions of the indeces
+        % Calculate 3d positions of the indices
         p = [...
             xindToX(x(:)),...
             yindToY(y(:)),...
@@ -125,32 +125,32 @@ while true % Begin loop
     fscore(minNode) = Inf;
 
     % Update things - 26 connected nodes
-    % Get the proper indeces
+    % Get the proper indices
     [xi,yi,zi] = ind2sub(map.gridsize,minNode);
-    indeces = (xi+cx) + nx*(yi+cy-1) + nx*ny*(zi+cz-1);
-    % Find valid indeces -> inside the boundary and free space
-    validindeces = (xi+cx > 0 & yi+cy > 0 & zi+cz > 0 & xi+cx <= nx & yi+cy <= ny & zi+cz <= nz);
-    validindeces(validindeces) = freespace(indeces(validindeces));
+    indices = (xi+cx) + nx*(yi+cy-1) + nx*ny*(zi+cz-1);
+    % Find valid indices -> inside the boundary and free space
+    validindices = (xi+cx > 0 & yi+cy > 0 & zi+cz > 0 & xi+cx <= nx & yi+cy <= ny & zi+cz <= nz);
+    validindices(validindices) = freespace(indices(validindices));
 
-    if all(~validindeces)
+    if all(~validindices)
         continue
     end
 
     % Update the costs/fscores
-    newCosts = minScore + localWeights(validindeces);
-    cost(indeces(validindeces)) = min(newCosts, cost(indeces(validindeces)));
+    newCosts = minScore + localWeights(validindices);
+    cost(indices(validindices)) = min(newCosts, cost(indices(validindices)));
     if astar
         heuristic = sqrt(...
-            (goalXYZ(1)-xindToX(xi+cx(validindeces))).^2 + ...
-            (goalXYZ(2)-yindToY(yi+cy(validindeces))).^2 + ...
-            (goalXYZ(3)-zindToZ(zi+cz(validindeces))).^2);
-        fscore(indeces(validindeces)) = cost(indeces(validindeces)) + heuristic;
+            (goalXYZ(1)-xindToX(xi+cx(validindices))).^2 + ...
+            (goalXYZ(2)-yindToY(yi+cy(validindices))).^2 + ...
+            (goalXYZ(3)-zindToZ(zi+cz(validindices))).^2);
+        fscore(indices(validindices)) = cost(indices(validindices)) + heuristic;
     else
-        fscore(indeces(validindeces)) = min(newCosts, cost(indeces(validindeces)));
+        fscore(indices(validindices)) = min(newCosts, cost(indices(validindices)));
     end
     % Update the paths
-    updatedCosts = min(newCosts, cost(indeces(validindeces))) == newCosts;
-    updatePaths = indeces(validindeces);
+    updatedCosts = min(newCosts, cost(indices(validindices))) == newCosts;
+    updatePaths = indices(validindices);
     updatePaths = updatePaths(updatedCosts);
     paths(updatePaths) = minNode;
     %if mod(t,1000) == 0
