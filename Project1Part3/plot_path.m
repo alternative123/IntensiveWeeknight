@@ -16,8 +16,10 @@ for i = 1:size(map.obstacles,1)
     drawbox(p,q,c);
 end
 
-plot3(path(:,1),path(:,2),path(:,3))
-scatter3(path(:,1),path(:,2),path(:,3))
+if all(size(path) > 0)
+    plot3(path(:,1),path(:,2),path(:,3))
+    scatter3(path(:,1),path(:,2),path(:,3))
+end
 
 axis image;
 view(3);

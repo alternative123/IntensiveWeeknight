@@ -115,6 +115,11 @@ for iter = 1:max_iter
     terminate_cond = terminate_check(x, time, stop, pos_tol, vel_tol, time_tol);
     if terminate_cond
         break
+    elseif time > 15
+        fprintf('Stop: %f %f %f, Me: %f %f %f, Diff: %f %f %f\n',...
+            (stop{1}(1)),(stop{1}(2)),(stop{1}(3)),...
+            (x{1}(1)),(x{1}(2)),(x{1}(3)),...
+            (x{1}(1)-stop{1}(1)),(x{1}(2)-stop{1}(2)),(x{1}(3)-stop{1}(3)))
     end
 
 end

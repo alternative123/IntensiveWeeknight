@@ -4,9 +4,11 @@ function bbtraj = create_bangbang_trajectory(path)
 % Optimize path
 path = optimize_path(path);
 % Figure out times
-avgvel = 2; % HOW DO WE KNOW THIS??? This is just a guess
+avgvel = 2.4; % HOW DO WE KNOW THIS??? This is just a guess
 pathlengths=sqrt(sum(diff(path).^2,2));
-T = [0; cumsum(pathlengths/avgvel)]';
+timelengths = nthroot(pathlengths,3);
+totattime = sum(pathlengths)/avgvel;
+T = totattime*[0; cumsum(timelengths)/sum(timelengths)]';
 
 bbtraj.theta = @(t1) 6*(t1).^5 - 15*(t1).^4 + 10*(t1).^3;
 bbtraj.dtheta = @(t1) (30*(t1).^4 - 60*(t1).^3 + 30*(t1).^2);

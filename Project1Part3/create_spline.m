@@ -4,9 +4,17 @@ function spline = create_spline(path)
 % T is the times we want to be at those points (1 x n)
 
 % Figure out times
-avgvel = 2.5; % HOW DO WE KNOW THIS??? This is just a guess
+path=optimize_path(path,true);
+% avgvel = 2.6; % HOW DO WE KNOW THIS??? This is just a guess
 pathlengths=sqrt(sum(diff(path).^2,2));
-T = [0; cumsum(pathlengths/avgvel)]';
+timelengths = nthroot(pathlengths,3);
+% totattime = sum(pathlengths)/avgvel;
+T = [0; cumsum(timelengths)]';
+
+% Just in case - angles
+vects = diff(path);
+angles = abs(acos((sum(vects(1:end-1,:) .* vects(2:end,:),2)) ./ ...
+   (sqrt(sum(vects(1:end-1,:).^2,2)).*sqrt(sum(vects(2:end,:).^2,2)))));
 
 X=path(:,1);
 Y=path(:,2);

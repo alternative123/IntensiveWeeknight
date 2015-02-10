@@ -26,12 +26,12 @@ persistent traj
 if nargin > 2
     % Create a smaller path
     if iscell(path)
-        pathopt = cell2mat(path);%optimize_path(map,path);
+        path2 = cell2mat(path);%optimize_path(map,path);
     else
-        pathopt = path;
+        path2 = path;
     end
    
-    traj = create_bangbang_trajectory(pathopt);
+    traj = create_spline(path2);
     return
 end
 
@@ -40,7 +40,7 @@ if t < max(traj.T)
     desired_state.vel = traj.vel(t);
     desired_state.acc = traj.acc(t);
 else
-    desired_state.pos = traj.pos(max(traj.T));
+    desired_state.pos = [8.0  18.0 3.0]';%traj.pos(max(traj.T));
     desired_state.vel = zeros(3,1);
     desired_state.acc = zeros(3,1);
 end
