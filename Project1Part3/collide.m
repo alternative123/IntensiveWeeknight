@@ -12,7 +12,7 @@ for o = 1:size(map.obstacles,1)
     dx = max(max((box(1))-p(:,1),p(:,1)-(box(4))),zeros(size(p,1),1));
     dy = max(max((box(2))-p(:,2),p(:,2)-(box(5))),zeros(size(p,1),1));
     dz = max(max((box(3))-p(:,3),p(:,3)-(box(6))),zeros(size(p,1),1));
-    C = C | ((dx.^2 + dy.^2 + dz.^2) == 0);% < map.margin.^2);
+    C = C | ((dx.^2 + dy.^2 + dz.^2) < (map.margin).^2);
 end
 
 

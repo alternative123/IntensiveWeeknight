@@ -10,7 +10,7 @@ map.obstacles = [];
 map.obstacle_colors = [];
 map.xy_res = xy_res;
 map.z_res = z_res;
-map.margin = margin+0.3;
+map.margin = margin + 0.1;
 
 % Open map file and parse to create environment
 fid = fopen(filename);
@@ -32,9 +32,11 @@ while ischar(tline)
         map.obstacles = [ ...
             map.obstacles;
             str2double(C{2}) str2double(C{3}) str2double(C{4}) str2double(C{5}) str2double(C{6}) str2double(C{7}) ];
-        map.obstacle_colors = [ ...
-            map.obstacle_colors;
-            str2double(C{8}) str2double(C{9}) str2double(C{10}) ];
+        if length(C) >= 8
+            map.obstacle_colors = [ ...
+                map.obstacle_colors;
+                str2double(C{8}) str2double(C{9}) str2double(C{10}) ];
+        end
     else
         disp('I do not know what is happening...')
     end

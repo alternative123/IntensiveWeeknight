@@ -1,8 +1,8 @@
-function bbtraj = create_bangbang_trajectory(path)
+function bbtraj = create_bangbang_trajectory(path,map)
 % Create a bang bang trajectory generator. Assumes that the path is
 % not optimized
 % Optimize path
-path = optimize_path(path);
+path = optimize_path(path,map);
 % Figure out times
 avgvel = 2.4; % HOW DO WE KNOW THIS??? This is just a guess
 pathlengths=sqrt(sum(diff(path).^2,2));
@@ -24,6 +24,7 @@ bbtraj.vecacc = @(t) evaluate_acc(t,bbtraj);
 bbtraj.pos = @(t) single_pos(t,bbtraj);
 bbtraj.vel = @(t) single_vel(t,bbtraj);
 bbtraj.acc = @(t) single_acc(t,bbtraj);
+bbtraj.goal = path(end,:)';
 
 
 

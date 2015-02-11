@@ -33,3 +33,17 @@ scatter(X,Y)
 hold on
 plot(x,y)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

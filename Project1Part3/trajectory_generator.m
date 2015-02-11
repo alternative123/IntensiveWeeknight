@@ -31,7 +31,7 @@ if nargin > 2
         path2 = path;
     end
    
-    traj = create_spline(path2);
+    traj = create_spline(path2,map);
     return
 end
 
@@ -40,7 +40,7 @@ if t < max(traj.T)
     desired_state.vel = traj.vel(t);
     desired_state.acc = traj.acc(t);
 else
-    desired_state.pos = [8.0  18.0 3.0]';%traj.pos(max(traj.T));
+    desired_state.pos = traj.goal;
     desired_state.vel = zeros(3,1);
     desired_state.acc = zeros(3,1);
 end

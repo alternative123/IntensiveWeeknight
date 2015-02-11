@@ -31,11 +31,11 @@ Kd_psi = 0.1;
 % Position error
 err = (qd{qn}.pos_des - qd{qn}.pos);
 % Compute error orthogonal to trajectory
-% if norm(qd{qn}.vel_des) > 0
-%     errp = err - ((qd{qn}.vel_des'*err)/(qd{qn}.vel_des'*qd{qn}.vel_des))*qd{qn}.vel_des;
-% else % Not sure what to do here
+if norm(qd{qn}.vel_des) > 0
+    errp = err - ((qd{qn}.vel_des'*err)/(qd{qn}.vel_des'*qd{qn}.vel_des))*qd{qn}.vel_des;
+else % Not sure what to do here
     errp = err;
-% end
+end
     
 % Velocity Error
 errv = (qd{qn}.vel_des - qd{qn}.vel);
