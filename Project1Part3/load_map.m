@@ -10,7 +10,7 @@ map.obstacles = [];
 map.obstacle_colors = [];
 map.xy_res = xy_res;
 map.z_res = z_res;
-map.margin = margin;
+map.margin = margin + 0.1;
 
 % Open map file and parse to create environment
 fid = fopen(filename);
