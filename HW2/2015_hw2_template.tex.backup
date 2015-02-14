@@ -1,0 +1,119 @@
+\documentclass[english]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{latexsym,amsmath,amssymb,amsfonts,fullpage}
+
+
+\begin{document}
+	
+\begin{center}
+{\textbf{MEAM 620 Homework 2}} \\
+Due: February 18, 2015, 11:59pm
+\end{center}
+
+
+\paragraph{1.} List two advantages and two disadvantages each for using (a) rotation matrices;(b) axis angle representation; (c) exponential coordinates; (d) Euler angles; and (e) quaternions to describe rotations? 
+\[\textrm{ }\]
+\begin{enumerate}
+ \item[(a)] Rotation matrices 
+    \begin{itemize}
+     \item Advantages
+     \begin{enumerate}
+      \item[1.] Very easy to use in coordinates - just use matrix multiplication with point you want to rotate
+      \item[2.] Covers all of $SO(3)$, since rotation matrices are how $SO(3)$ is defined. 
+     \end{enumerate}
+     \item Disadvantages
+     \begin{enumerate}
+      \item[1.] Not very compact - only need 3 numbers to represent $SO(3)$, but here we use 9
+      \item[2.] Interpolation - interpolating between 2 rotation matrices is non-trival, and we often want to do this.
+     \end{enumerate}
+    \end{itemize}
+
+ \item[(b)] Axis-Angle Representation 
+    \begin{itemize}
+     \item Advantages
+     \begin{enumerate}
+      \item[1.] Compact representation - just need 4 numbers to represent it (3 for axis, 1 for angle). 
+      \item[2.] Covers all of $SO(3)$ - every matrix can be represented this way (similar to axis-angle) (with singularities as shown below)
+     \end{enumerate}
+     \item Disadvantages
+     \begin{enumerate}
+      \item[1.] Many to one representation - the zero rotation has infinitely many representations,
+                and even if you restrict the angle to $[0,pi]$, then you get $R(x,\pi) = R(-x,\pi)$
+                (though the latter is an inherant problem in $SO(3)$, so it won't be represented again). 
+      \item[2.] More difficult to compute with - need to convert into rotation matrix before you can use
+     \end{enumerate}
+    \end{itemize}
+
+ \item[(c)] Exponential Coordinates 
+    \begin{itemize}
+     \item Advantages
+     \begin{enumerate}
+      \item[1.] Compact representation - just need 3 numbers to represent it (3 for axis times the angle) (Can also represent as axis and angle). 
+      \item[2.] Covers all of $SO(3)$ - every matrix can be represented this way (similar to axis-angle), and avoids singularities of axis-angle
+     \end{enumerate}
+     \item Disadvantages
+     \begin{enumerate}
+      \item[1.] More difficult to compute with - need to convert into rotation matrix before you can use, like axis-angle
+      \item[2.] 
+     \end{enumerate}
+    \end{itemize}
+
+ \item[(d)] Euler angles 
+ \item[(e)] Quaternions 
+\end{enumerate}
+
+
+
+\paragraph{2.}  
+Consider the problem of fitting a smooth curve to the following waypoints in 2D: 
+\begin{align*}
+t_0 &= 0, (x_0, y_0) = (-1, 0) \\
+t_1 &= 5, (x_1, y_1) = (0, 2) \\
+t_2 &= 6, (x_2, y_2) = (1, 0) \\
+t_0 &= 0, (\dot{x}_0, \dot{y}_0) = (-1, -5) 
+\end{align*}
+
+Note that the first three constraints are position constraints, while the last is a velocity constraint. Any other necessary derivative constraints at $t_0 = 0$ and $t_2 = 6$ should be set to $(0, 0)$. To minimize the functional:
+\begin{align}
+\int_{t = 0}^T \| x^{(n)} \|^2 dt,
+\end{align}
+
+\noindent the endpoints need to be constrained in position, velocity, and up to and including the $(n-1)$st derivative. All derivatives (velocity, acceleration, etc.) at $t_1 = 5$ should be left unspecified, and you will need to add the appropriate number of continuity constraints at that point. Also, note you will need to find $x(t)$ and $y(t)$.
+
+a. A minimum acceleration trajectory can be constructed by fitting a cubic spline. Construct this trajectory for the waypoint constraints above. Explicitly write down the solution you find (ie. write down $x(t) = c_0 + c_1 t + c_2 t^2 ...$, where you fill in $c_0, c_1, c_2, ...$ with the coefficient values you found) and create a plot illustrating each trajectory and the waypoints. Include your Matlab code with your submission. 
+
+b. What is the minimum order polynomial you need to construct a minimum jerk trajectory? Construct this trajectory, write down your solution, and create a plot as in part a. 
+
+c. What is the minimum order polynomial you need to construct a minimum snap trajectory? Construct this trajectory, write down your solution, and create a plot. 
+
+d. Name one advantage and one disadvantage of choosing a lower order polynomial over a higher one.  
+
+
+
+
+\paragraph{3.}
+
+Calculate the angular velocities $\omega^s$ and $\omega^b$ for the rotation:
+\begin{align}
+R = e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t}
+\end{align}
+
+
+
+\paragraph{4.} {
+What skew-symmetric matrix $\hat{\omega} \in so(3)$ corresponds to the rotation
+\begin{equation*}
+R= \begin{bmatrix}
+   -0.3038 &  -0.6313 & -0.7135\\
+   -0.9332  &  0.3481   & 0.0893\\
+    0.1920   & 0.6930 &  -0.6949\\
+\end{bmatrix}
+\end{equation*}
+
+
+Is it unique?
+
+%\bibliography{ref}
+%\bibliographystyle{plain}
+
+\end{document}
