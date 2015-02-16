@@ -28,3 +28,7 @@
 *.out
 *.synctex.gz
 *.bak
+
+
+# For nested repos
+Project1Part4/phase4/*
