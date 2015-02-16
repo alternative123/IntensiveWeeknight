@@ -322,7 +322,133 @@ We use the Euler-Lagrange equations to determine what degree you need:
   
   So we need a polynomial of order 8, or dergree 7. We again compute as follows:
 
+\begin{lstlisting}
+% Create constants for the spline
+X    = [ -1;   0;   1 ];
+Y    = [  0;   2;   0 ];
+Xdot = [ -1; nan; nan ]; % Don't know the last two...
+Ydot = [ -5; nan; nan ]; % Don't know the last two...
+T    = [  0;   5;   6 ];
 
+A = zeros(16,16); % 16x16 coefficient matrix
+bx = zeros(16,1); % The x-direction result vector
+by = zeros(16,1); % The y-direction result vector
+seg1 = 1:8;
+seg2 = 9:16;
+% Time 1 constraints
+% Initial positions
+A(1,seg1)  =  [T(1)^7, T(1)^6, T(1)^5, T(1)^4, T(1)^3, T(1)^2, T(1), 1];
+bx(1)      =  X(1);
+by(1)      =  Y(1);
+% Initial velocity
+A(2,seg1)  =  [7*T(1)^6, 6*T(1)^5, 5*T(1)^4 4*T(1)^3 3*T(1)^2 2*T(1) 1 0];
+bx(2)      =  Xdot(1);
+by(2)      =  Ydot(1);
+% Initial acceleration
+A(3,seg1)  =  [42*T(1)^5, 30*T(1)^4, 20*T(1)^3 12*T(1)^2 6*T(1) 2 0 0];
+bx(3)      =  0;
+by(3)      =  0;
+% Initial jerk
+A(4,seg1)  =  [210*T(1)^4, 120*T(1)^3, 60*T(2)^2 24*T(2) 6 0 0 0];
+bx(4)      =  0;
+by(4)      =  0;
+
+% Time 2 constraints
+% Final position for first segment
+A(5,seg1)  =  [T(2)^7, T(2)^6, T(2)^5, T(2)^4, T(2)^3, T(2)^2, T(2), 1];
+bx(5)      =  X(2);
+by(5)      =  Y(2);
+% Initial position for second
+A(6,seg2)  =  [T(2)^7, T(2)^6, T(2)^5, T(2)^4, T(2)^3, T(2)^2, T(2), 1];
+bx(6)      =  X(2);
+by(6)      =  Y(2);
+% Velocities must be the same for both segments
+A(7,seg1)  =  [7*T(2)^6, 6*T(2)^5, 5*T(2)^4 4*T(2)^3 3*T(2)^2 2*T(2) 1 0];
+A(7,seg2)  = -[7*T(2)^6, 6*T(2)^5, 5*T(2)^4 4*T(2)^3 3*T(2)^2 2*T(2) 1 0];
+bx(7)      =  0;
+by(7)      =  0;
+% Accelerations must be the same for both segments
+A(8,seg1)  =  [42*T(2)^5, 30*T(2)^4, 20*T(2)^3 12*T(2)^2 6*T(2) 2 0 0];
+A(8,seg2)  = -[42*T(2)^5, 30*T(2)^4, 20*T(2)^3 12*T(2)^2 6*T(2) 2 0 0];
+bx(8)      =  0;
+by(8)      =  0;
+% Jerk must be the same for both segments
+A(9,seg1)  =  [210*T(2)^4, 120*T(2)^3, 60*T(2)^2 24*T(2) 6 0 0 0];
+A(9,seg2)  = -[210*T(2)^4, 120*T(2)^3, 60*T(2)^2 24*T(2) 6 0 0 0];
+bx(9)      =  0;
+by(9)      =  0;
+% 'Snap' must be the same for both segments
+A(10,seg1) =  [630*T(2)^3, 360*T(2)^2, 120*T(2), 24, 0, 0, 0, 0];
+A(10,seg2) = -[630*T(2)^3, 360*T(2)^2, 120*T(2), 24, 0, 0, 0, 0];
+bx(10)     =  0;
+by(10)     =  0;
+% 'Crackle' must be the same for both segments
+A(11,seg1) =  [1890*T(2)^2, 720*T(2), 120, 0, 0, 0, 0, 0];
+A(11,seg2) = -[1890*T(2)^2, 720*T(2), 120, 0, 0, 0, 0, 0];
+bx(11)     =  0;
+by(11)     =  0;
+% 'Pop' must be the same for both segments
+A(12,seg1) =  [3780*T(2), 720, 0, 0, 0, 0, 0, 0];
+A(12,seg2) = -[3780*T(2), 720, 0, 0, 0, 0, 0, 0];
+bx(12)     =  0;
+by(12)     =  0;
+
+
+% Time 3 constraints
+% Final position for first segment
+A(13,seg2) =  [T(3)^7, T(3)^6, T(3)^5, T(3)^4, T(3)^3, T(3)^2, T(3), 1];
+bx(13)     =  X(3);
+by(13)     =  Y(3);
+% Velocity vanishes at the end
+A(14,seg2) =  [7*T(3)^6, 6*T(3)^5, 5*T(3)^4, 4*T(3)^3, 3*T(3)^2, 2*T(3), 1, 0];
+bx(14)     =  0;
+by(14)     =  0;
+% Final acceleration
+A(15,seg2) =  [42*T(3)^5, 30*T(3)^4, 20*T(3)^3, 12*T(3)^2, 6*T(3), 2, 0, 0];
+bx(15)     =  0;
+by(15)     =  0;
+% Final jerk
+A(16,seg1)  =  [210*T(3)^4, 120*T(3)^3, 60*T(3)^2 24*T(2) 6 0 0 0];
+bx(16)      =  0;
+by(16)      =  0;
+
+% Compute the coefficents
+Cx = A \ bx;
+Cy = A \ by;
+\end{lstlisting}
+
+So the polynomials are (up to 4 decimal places)
+
+\(x(t) =\)
+\begin{align*}
+&\textrm{ if } 0 \leq t \leq 5 \\
+&(0.0004)t^7 + (-0.0036)t^6 + (-0.0185)t^5 + (0.26)t^4 + (-0.5801)t^3 + (0)t^2 + (-1)t + (-1) \\
+&\textrm{ if } 5 \leq t \leq 6 \\
+&(0.0005)t^7 + (-0.0069)t^6 + (0.0311)t^5 + (-0.1527)t^4 + (0.7958)t^3 +\\
+& \; \; \; \; \; \; (2.0638)t^2 + (-25.0777)t + (40.7675)
+\end{align*}
+
+
+\(y(t) = \)
+\begin{align*}
+&\textrm{ if } 0 \leq t \leq 5 \\
+&(-0.0016)t^7 + (0.0141)t^6 + (0.0884)t^5 + (-1.2878)t^4 + (3.6585)t^3 + (0)t^2 + (-5)t + (0) \\
+&\textrm{ if } 5 \leq t \leq 6 \\
+&(-0.0013)t^7 + (0.0084)t^6 + (0.1728)t^5 + (-1.9909)t^4 + (6.0021)*t^3 + \\
+& \; \; \; \; \; \; (3.5154)t^2 + (-46.0126)t + (71.1444) \\
+\end{align*}
+%\[
+%\begin{cases}
+%(0.0470)t^5 + (-0.5892)t^4 + (1.9878)t^3 + (0)t^2 + (-5)t + (0) & \textrm{ if } 0 \leq t \leq 5 \\
+%(-0.9505)t^5 + (24.3468)t^4 + (-247.3722)t^3 + (1246.8)t^2 + (-3122)t + (3117) & \textrm{ if } 5 \leq t \leq 6 \\
+%\end{cases}
+%\]
+And the plot is:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{septicspline.jpg}
+\caption{The plot of the septic spline}
+\end{figure}
 
 \item[d.] Name one advantage and one disadvantage of choosing a lower order polynomial over a higher one.  
 
@@ -338,6 +464,18 @@ Calculate the angular velocities $\omega^s$ and $\omega^b$ for the rotation:
 \begin{align}
 R = e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t}
 \end{align}
+
+\begin{align*}
+               R = &\;  e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \\
+\implies \dot{R} = &\; \frac{d}{dt}(e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t}) \\
+  = &\; \frac{d}{dt}(e^{\hat{\omega}_1 t}) e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} \frac{d}{dt}(e^{\hat{\omega}_2 t}) \\
+  = &\; \hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} \hat{\omega}_2 e^{\hat{\omega}_2 t} \\
+  = &\; \hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2 \\
+ \dot{R^\top R} =&\;  \dot{R}^\top R + R^\top \dot{R} = 0 \\
+\implies \dot{R}^\top R =&\;  - (\dot{R}^\top R)^\top \\
+  =&\;  - (\left(\hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2\right)^\top e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t})^\top
+\end{align*}
+
 
 
 
