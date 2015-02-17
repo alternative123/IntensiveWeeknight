@@ -378,18 +378,18 @@ A(9,seg2)  = -[210*T(2)^4, 120*T(2)^3, 60*T(2)^2 24*T(2) 6 0 0 0];
 bx(9)      =  0;
 by(9)      =  0;
 % 'Snap' must be the same for both segments
-A(10,seg1) =  [630*T(2)^3, 360*T(2)^2, 120*T(2), 24, 0, 0, 0, 0];
-A(10,seg2) = -[630*T(2)^3, 360*T(2)^2, 120*T(2), 24, 0, 0, 0, 0];
+A(10,seg1) =  [840*T(2)^3, 360*T(2)^2, 120*T(2), 24, 0, 0, 0, 0];
+A(10,seg2) = -[840*T(2)^3, 360*T(2)^2, 120*T(2), 24, 0, 0, 0, 0];
 bx(10)     =  0;
 by(10)     =  0;
 % 'Crackle' must be the same for both segments
-A(11,seg1) =  [1890*T(2)^2, 720*T(2), 120, 0, 0, 0, 0, 0];
-A(11,seg2) = -[1890*T(2)^2, 720*T(2), 120, 0, 0, 0, 0, 0];
+A(11,seg1) =  [2520*T(2)^2, 720*T(2), 120, 0, 0, 0, 0, 0];
+A(11,seg2) = -[2520*T(2)^2, 720*T(2), 120, 0, 0, 0, 0, 0];
 bx(11)     =  0;
 by(11)     =  0;
 % 'Pop' must be the same for both segments
-A(12,seg1) =  [3780*T(2), 720, 0, 0, 0, 0, 0, 0];
-A(12,seg2) = -[3780*T(2), 720, 0, 0, 0, 0, 0, 0];
+A(12,seg1) =  [5040*T(2), 720, 0, 0, 0, 0, 0, 0];
+A(12,seg2) = -[5040*T(2), 720, 0, 0, 0, 0, 0, 0];
 bx(12)     =  0;
 by(12)     =  0;
 
@@ -422,20 +422,20 @@ So the polynomials are (up to 4 decimal places)
 \(x(t) =\)
 \begin{align*}
 &\textrm{ if } 0 \leq t \leq 5 \\
-&(0.0004)t^7 + (-0.0036)t^6 + (-0.0185)t^5 + (0.26)t^4 + (-0.5801)t^3 + (0)t^2 + (-1)t + (-1) \\
+&(0.0003)t^7 + (-0.0031)t^6 + (-0.0154)t^5 + (0.2156)t^4 + (-0.4692)t^3 + (0)t^2 + (-1)t + (-1)
 &\textrm{ if } 5 \leq t \leq 6 \\
-&(0.0005)t^7 + (-0.0069)t^6 + (0.0311)t^5 + (-0.1527)t^4 + (0.7958)t^3 +\\
-& \; \; \; \; \; \; (2.0638)t^2 + (-25.0777)t + (40.7675)
+& (0.0411)t^7 + (-1.4284)t^6 + (21.3652)t^5 + (-177.9559)t^4 + (890.3882)t^3 +\\
+& \; \; \; \; \; \; (-2672.5723)t^2 + (4453.2871)t + (-3182.6336)
 \end{align*}
 
 
 \(y(t) = \)
 \begin{align*}
 &\textrm{ if } 0 \leq t \leq 5 \\
-&(-0.0016)t^7 + (0.0141)t^6 + (0.0884)t^5 + (-1.2878)t^4 + (3.6585)t^3 + (0)t^2 + (-5)t + (0) \\
+&(-0.0017)t^7 + (0.0151)t^6 + (0.0937)t^5 + (-1.3635)t^4 + (3.8474)t^3 + (0)t^2 + (-5)t + (0) \\
 &\textrm{ if } 5 \leq t \leq 6 \\
-&(-0.0013)t^7 + (0.0084)t^6 + (0.1728)t^5 + (-1.9909)t^4 + (6.0021)*t^3 + \\
-& \; \; \; \; \; \; (3.5154)t^2 + (-46.0126)t + (71.1444) \\
+&(0.0411)t^7 + (-1.4284)t^6 + (21.3652)t^5 + (-177.9559)t^4 + (890.3882)t^3 + \\
+& \; \; \; \; \; \; (-2672.5723)t^2 + (4453.2871)t + (-3182.6336)
 \end{align*}
 %\[
 %\begin{cases}
@@ -471,12 +471,25 @@ R = e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t}
   = &\; \frac{d}{dt}(e^{\hat{\omega}_1 t}) e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} \frac{d}{dt}(e^{\hat{\omega}_2 t}) \\
   = &\; \hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} \hat{\omega}_2 e^{\hat{\omega}_2 t} \\
   = &\; \hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2 \\
- \dot{R^\top R} =&\;  \dot{R}^\top R + R^\top \dot{R} = 0 \\
-\implies \dot{R}^\top R =&\;  - (\dot{R}^\top R)^\top \\
-  =&\;  - (\left(\hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2\right)^\top e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t})^\top
 \end{align*}
 
+The last step comes from the fact that the exponential of a matrix and the matrix commute (this can be shown from the summation definition of the exponential). So now we compute the angular velocities $\omega^s$ and $\omega^b$. First $\omega^b$:
+\begin{align*}
+\hat{\omega}^b = R^\top \dot{R} =&\; \left( e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \right)^\top \left(\hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2\right) \\
+ =&\;  e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t} \left(\hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2\right) \\
+ =&\;  e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t} \hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t} e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2 \\
+ =&\; e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t} e^{\hat{\omega}_1 t} \hat{\omega}_1 e^{\hat{\omega}_2 t} + \hat{\omega}_2 \\
+ =&\; e^{-\hat{\omega}_2 t} \hat{\omega}_1 e^{\hat{\omega}_2 t} + \hat{\omega}_2 \\
+\end{align*}
 
+So now we compute the angular velocities $\omega^s$ and $\omega^b$. First $\omega^b$:
+\begin{align*}
+\hat{\omega}^s = \dot{R} R^\top =&\; \left(\hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2\right) \left( e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \right)^\top  \\
+=&\; \left(\hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2\right) e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t}   \\
+=&\; \hat{\omega}_1 e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t} + e^{\hat{\omega}_1 t} e^{\hat{\omega}_2 t} \hat{\omega}_2 e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t} \\
+=&\; \hat{\omega}_1 + e^{\hat{\omega}_1 t} \hat{\omega}_2 e^{\hat{\omega}_2 t}  e^{-\hat{\omega}_2 t} e^{-\hat{\omega}_1 t} \\
+=&\; \hat{\omega}_1 + e^{\hat{\omega}_1 t} \hat{\omega}_2 e^{-\hat{\omega}_1 t} \\
+\end{align*}
 
 
 \paragraph{4.} 
@@ -491,6 +504,21 @@ R= \begin{bmatrix}
 
 
 Is it unique?
+
+
+First we compute the angle of the rotation using $(\mathbf{tr}(R)-1)/2$:
+\[ \theta = 2.5415 \]
+
+Then we compute $\hat{\omega}$ using $\theta (R - R^\top)/(2 \sin(\theta))$
+\[ \begin{bmatrix}
+         0  &  0.6794 &  -2.0377 \\
+   -0.6794  &       0 &  -1.3585 \\
+    2.0377  &  1.3585 &        0
+  \end{bmatrix}
+\]
+
+This is the unique skew-symmetic matrix representing the rotation $R$, since the inverse exponential map is unique, being one-to-one.
+
 
 %\bibliography{ref}
 %\bibliographystyle{plain}
