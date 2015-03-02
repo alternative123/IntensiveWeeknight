@@ -92,42 +92,42 @@ I(x,y) = \left\{
 \]
 
 To compute the eigenvalues of $M$, we need to know $\partial I / \partial x$ and $\partial I / \partial y$.
-We define in class for discrete variables the derivative as $\frac{1}{2} I(x-1,y) - \frac{1}{2} I(x+1,y)$,
-so we have:
+We defined in class for images the derivative in the $x$ direction as
+$\frac{1}{2} I(x-1,y) - \frac{1}{2} I(x+1,y)$, which is the same as a discrete way convolution with
+$[ -1/2, 0, 1/2]$. Similarly for the $y$ direction. So we have:
 \[ \frac{\partial I}{\partial x} = \left\{
     \begin{array}{ll}
-       -1 & \textrm{if } x + y = 0 \\
+        1/2 & \textrm{if } -1 \le x + y \le 0 \\
         0 & \textrm{otherwise}
     \end{array} \right.
 \]
 \[ \frac{\partial I}{\partial y} = \left\{
     \begin{array}{ll}
-       -1 & \textrm{if } x + y = 0 \\
+        1/2 & \textrm{if } -1 \le x + y \le 0 \\
         0 & \textrm{otherwise}
     \end{array} \right.
 \]
 
-This means that only the $(x,y)$ pairs of the form $(k,k)$ for some $k$ have nonzero derivative. Let's say
-there are $n$ of them. We compute the
-$M$ matrix:
+This means that only the $(x,y)$ pairs of the form $(k,-k)$ or $(k,-k-1)$ for some $k$ have nonzero derivative.
+Let's say there are $n$ non-zero entires in the matrix. We compute the $M$ matrix:
 \begin{align*}
 M 
 =&\; \sum_{\vec{x}} \nabla I(\vec{x}) \nabla I(\vec{x})^\top \\
-=&\; \sum_{k} [-1 \; -1 ]^\top [ -1 \; -1 ]  \\
-=&\; \sum_{k}
+=&\; \sum_{k} [-1/2 \; -1/2 ]^\top [ -1/2 \; -1/2 ]  \\
+=&\; \frac{1}{4} \sum_{k}
         \begin{bmatrix}
            1 & 1 \\
            1 & 1 
         \end{bmatrix} \\
-=&\; n  \begin{bmatrix}
+=&\; \frac{n}{4}  \begin{bmatrix}
            1 & 1 \\
            1 & 1 
         \end{bmatrix} \\
 \end{align*}
 
-This clearly has eigen values $2n$ and $0$.
+This clearly has eigen values $n/2$ and $0$.
 \[
-n \begin{bmatrix}
+\frac{n}{4} \begin{bmatrix}
            1 & 1 \\
            1 & 1 
    \end{bmatrix} 
@@ -135,14 +135,14 @@ n \begin{bmatrix}
            1  \\
            1  
    \end{bmatrix} =
- 2n \begin{bmatrix}
+ \frac{n}{2} \begin{bmatrix}
            1  \\
            1  
    \end{bmatrix} 
 \]
 
 \[
-n \begin{bmatrix}
+\frac{n}{4} \begin{bmatrix}
            1 & 1 \\
            1 & 1 
    \end{bmatrix} 
