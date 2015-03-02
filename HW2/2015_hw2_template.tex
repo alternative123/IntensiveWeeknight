@@ -58,7 +58,7 @@ Due: February 18, 2015, 11:59pm
       \item[1.] Many to one representation - the zero rotation has infinitely many representations,
                 and even if you restrict the angle to $[0,pi]$, then you get $R(x,\pi) = R(-x,\pi)$
                 (though the latter is an inherent problem in $SO(3)$). 
-      \item[2.] More difficult to compute with - need to convert into rotation matrix before you can use
+      \item[2.] Need to enforce a unit vector axis meaning you have to renormalize every time you change it (also makes interpolation difficult)
      \end{enumerate}
     \end{itemize}
 
@@ -66,12 +66,12 @@ Due: February 18, 2015, 11:59pm
     \begin{itemize}
      \item Advantages
      \begin{enumerate}
-      \item[1.] Compact representation - just need 3 numbers to represent it (3 for axis times the angle) (Can also represent as axis and angle). 
+      \item[1.] Compact representation - just need 3 numbers to represent it (3 for axis times the angle) (Can also represent as axis and angle). No need for constraints like a unit vector for the axis (no renomalization)
       \item[2.] Covers all of $SO(3)$ - every matrix can be represented this way (similar to axis-angle), and avoids singularities of axis-angle
      \end{enumerate}
      \item Disadvantages
      \begin{enumerate}
-      \item[1.] More difficult to compute with - need to convert into rotation matrix before you can use, like axis-angle
+      \item[1.] Interpolating is still difficult even without the renormalization, as we are given the formula for just one rotation and just linearly interpolating may not work so well
       \item[2.] Many to one map - This still is a many to one representation of $SO(3)$, since we have the $(x,\pi)$ and $(-x,\pi)$
                 axis angle singularity.
      \end{enumerate}
@@ -81,13 +81,13 @@ Due: February 18, 2015, 11:59pm
     \begin{itemize}
      \item Advantages
      \begin{enumerate}
-      \item[1.] Compact representation - just need 3 numbers to represent it, one for each angle.  
+      \item[1.] Compact representation - just need 3 numbers to represent it, one for each angle. Also fairly intuitive to understand (e.g. roll pitch yaw).
       \item[2.] Easy to compute with - just need to compute the 3 rotation matrices to do it (which is comparitively easy)
      \end{enumerate}
      \item Disadvantages
      \begin{enumerate}
       \item[1.] Singularities - Gimbal lock is a big problem if you are dealing with large rotations
-      \item[2.] 
+      \item[2.] Many-to-one - with Gimbal lock comes that some rotations are represented by many angles, since when in gimbal lock you get one axis of rotation with two angles to work with.
      \end{enumerate}
     \end{itemize}
 
@@ -96,12 +96,12 @@ Due: February 18, 2015, 11:59pm
      \item Advantages
      \begin{enumerate}
       \item[1.] Compact representation - just need 4 numbers to represent it, one for each angle.
-      \item[2.] Easy to compute with - It is very fast to compute a rotation with a quaternion - just use $qpq^{-1}$. Also easy to compose quaternions
+      \item[2.] Easy to compute with - It is very fast to compute a rotation with a quaternion - just use $qpq^{-1}$. Also easy to compose quaternions by just using quaternion multiplication. 
      \end{enumerate}
      \item Disadvantages
      \begin{enumerate}
       \item[1.] Renormalization - quaternions MUST be of unit length, so you have to renormalize every time you combine quaternions
-      \item[2.] 
+      \item[2.] Complicated representation - it is much harder for humans to understand what the 4 numbers of a quaternion mean which can matter if humans are involved in editing them a lot. The math is just more complicated in the end (and we still don't avoid the $(x,\pi)$ and $(-x,\pi)$ issues).
      \end{enumerate}
     \end{itemize}
 
@@ -129,6 +129,8 @@ Note that the first three constraints are position constraints, while the last i
  \item[a.] A minimum acceleration trajectory can be constructed by fitting a cubic spline. Construct this trajectory for the waypoint constraints above. Explicitly write down the solution you find (ie. write down $x(t) = c_0 + c_1 t + c_2 t^2 ...$, where you fill in $c_0, c_1, c_2, ...$ with the coefficient values you found) and create a plot illustrating each trajectory and the waypoints. Include your Matlab code with your submission. 
 
 As we are using a cubic spline, we need two sets of coefficents to represent this curve, 8 total.
+The equations represent setting the inital/final positions and velocities, the intermediate positions, and
+enforcing that the intermediate velocities and accelerations are the same.
 We use the following code to find the coefficents for the cubic spline: 
 \begin{lstlisting}
 % Create constants for the spline
@@ -198,7 +200,9 @@ The plot looks as follows:
 
 \item[b.] What is the minimum order polynomial you need to construct a minimum jerk trajectory? Construct this trajectory, write down your solution, and create a plot as in part a. 
 
-As shown in class, using the Euler-Lagrange equations, it is a quintic polynomial, or one of order 6 (highest degree 5). So we compute it as follows:
+As shown in class, using the Euler-Lagrange equations, it is a quintic polynomial, or one of order 6 (highest degree 5).
+
+So we make a quintic spline with the constraints being the initial and final positions, velocities, and accelerations. We also add equations for the intermediate positions, and enforce that the intermediate velocities, accelerations, and jerks, and snaps at the boundaries are the same. So we compute it as follows:
 \begin{lstlisting}
 % Create constants for the spline
 X    = [ -1;   0;   1 ];
@@ -320,7 +324,8 @@ We use the Euler-Lagrange equations to determine what degree you need:
   =  - \frac{d^4}{dt^4} \left( 2 x^{(4)} \right) = -2 x^{(8)} = 0\]
   \[ \implies x^{(8)} = 0 \]
   
-  So we need a polynomial of order 8, or dergree 7. We again compute as follows:
+  So we need a polynomial of order 8, or dergree 7. So we make a septic spline with the constraints being the initial and final positions, velocities, and accelerations, and jerks. And like last time we also add equations for the intermediate positions, and enforce that the intermediate velocities, accelerations, and jerks, and snaps, crackles, and pops are the same at the boundaries. We get the following code:	
+
 
 \begin{lstlisting}
 % Create constants for the spline
@@ -491,6 +496,10 @@ So now we compute the angular velocities $\omega^s$ and $\omega^b$. First $\omeg
 =&\; \hat{\omega}_1 + e^{\hat{\omega}_1 t} \hat{\omega}_2 e^{-\hat{\omega}_1 t} \\
 \end{align*}
 
+We cannot really simplify these any further. The fact that
+$(e^{\hat{\omega}_1})^\top = e^{-\hat{\omega}}$ comes from the fact that $\hat{\omega}$ is
+skew symmetric and the summation definition of the exponential.
+
 
 \paragraph{4.} 
 What skew-symmetric matrix $\hat{\omega} \in so(3)$ corresponds to the rotation
@@ -517,8 +526,7 @@ Then we compute $\hat{\omega}$ using $\theta (R - R^\top)/(2 \sin(\theta))$
   \end{bmatrix}
 \]
 
-This is the unique skew-symmetic matrix representing the rotation $R$, since the inverse exponential map is unique, being one-to-one.
-
+Using this procedure this is unique, but it is not the only skew symmetric matrix that could generate $R$. For instance any matrix of the form $(1+2 \pi k) \hat{\omega}$ would also map to $R$. However, if we restrict to angles between $0$ and $\pi$ then only the points with $\pi$ as their angle would have duplicates (namely $\pi\hat{\omega}$ and $-\pi \hat{\omega}$
 
 %\bibliography{ref}
 %\bibliographystyle{plain}
