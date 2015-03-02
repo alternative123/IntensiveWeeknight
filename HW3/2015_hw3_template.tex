@@ -157,7 +157,7 @@ n \begin{bmatrix}
 \]
 
 This represents the apature problem: We can only see change in one direction. If we move the window accross the
-$[ 1 \; -1 ]^\top$ direction, then we will see no change in the trance of $M$. 
+$[ 1 \; -1 ]^\top$ direction, then we will see no change in the trace of $M$. 
 
 d. In this last question we want to see whether the big red rectangle is a better Harris corner than the small one. 
 % We will assume that the image reads
@@ -229,10 +229,10 @@ Since the gradient is zero everywhere except the circle, the $M$ matrix becomes:
         \begin{bmatrix}
             1 & 0 \\
             0 & 1
-        \end{bmatrix} + \frac{1}{2} 
+        \end{bmatrix} + \frac{1}{4} 
         \begin{bmatrix}
             0 & 1 \\
-           -1 & 0
+            1 & 0
         \end{bmatrix} + \frac{1}{4} 
         \begin{bmatrix}
             \sin 2\theta_{max}  & -\cos 2\theta_{max}  \\
@@ -240,49 +240,60 @@ Since the gradient is zero everywhere except the circle, the $M$ matrix becomes:
         \end{bmatrix}  
 \end{align*}
 
-Now we just plug in the values for $\theta_{max}$. We have for the larger of the two, 
+Now we just plug in the values for $\theta_{max}$. As the analytic numbers get confusing, we
+will use numerical values rather than analytic values. We have for the larger of the two, 
 $\theta_{max} = \pi/2$.
 
 \[
-\frac{\pi}{8} 
+M_1 = \frac{\pi}{4} 
 \begin{bmatrix}
     1 & 0 \\
     0 & 1
-\end{bmatrix} + \frac{1}{2} 
-\begin{bmatrix}
-    0 & 1 \\
-   -1 & 0
 \end{bmatrix} + \frac{1}{4} 
 \begin{bmatrix}
-    \sin (\pi/4)  & -\cos (\pi/4) \\
-    -\cos (\pi/4) & -\sin (\pi/4) 
-\end{bmatrix} =  
+    0 & 1 \\
+    1 & 0
+\end{bmatrix} + \frac{1}{4} 
 \begin{bmatrix}
-    \frac{\pi}{8} & -\frac{1}{2} \\
-    -\frac{1}{2} & \frac{\pi}{8}
-\end{bmatrix}  
-\]
+    \sin (\pi)  & -\cos (\pi) \\
+    -\cos (\pi) & -\sin (\pi) 
+\end{bmatrix}
+= \begin{bmatrix}
+    0.7854 & 0.5000 \\
+    0.5000 & 0.7854
+\end{bmatrix} \]
 
-For the smaller one, we have $\theta_{max} = \pi/8$
+For the smaller one, we have $\theta_{max} = \pi/4$. 
 \[
-\frac{\pi}{8} 
+M_2 = \frac{\pi}{16} 
 \begin{bmatrix}
     1 & 0 \\
     0 & 1
-\end{bmatrix} + \frac{1}{2} 
-\begin{bmatrix}
-    0 & 1 \\
-   -1 & 0
 \end{bmatrix} + \frac{1}{4} 
 \begin{bmatrix}
-    \sin (\pi/4)  & -\cos (\pi/4) \\
-    -\cos (\pi/4) & -\sin (\pi/4) 
-\end{bmatrix} =  
+    0 & 1 \\
+    1 & 0
+\end{bmatrix} + \frac{1}{4} 
 \begin{bmatrix}
-    \frac{\pi}{8} & -\frac{1}{2} \\
-    -\frac{1}{2} & \frac{\pi}{8}
-\end{bmatrix}  
-\]
+    \sin (\pi/2)  & -\cos (\pi/2) \\
+    -\cos (\pi/2) & -\sin (\pi/2) 
+\end{bmatrix}
+= \begin{bmatrix}
+    0.6427 & 0.2500 \\
+    0.2500 & 0.6427
+\end{bmatrix} \]
+
+The 'cornerness' of these matrices is determined by $c(A) = \det(A) - 0.06 \cdot \mathbf{tr}(A)^2$. Computing it on
+each of these two matrices we get
+
+\[c(M_1) = 0.2188\]
+\[ c(M_2) = -0.0078 \]
+
+Clearly $M_1$, the one
+corresponding to $\theta_{max} = \pi/2$, is the better corner. 
+
+
+
 \end{enumerate}
 
 
