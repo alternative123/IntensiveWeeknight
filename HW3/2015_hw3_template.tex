@@ -60,9 +60,31 @@ I will refer to this as the following:
 a. What will happen to the trace of the matrix if the image will be dilated $I'(x,y) = I(x/2,y/2)$.
 Assume that $I_x,I_y$ are the image derivatives directly (without any Gaussian convolution) and that the neighborhood of summation is double the original size. 
 \\
+We will assume a continuous formulation of this. So we have $I'(x,y) = I(x/2,y/2)$, this means
+$\nabla I'(x/2,y/2) = (1/2) \nabla I(x/2,y/2)$. Let us say the window size is $(a,a)$.
+The $M$ matrix becomes:
+\[ M = \int_{-a}^{a} \int_{-a}^{a} \nabla I(x,y) \nabla I(x,y)^\top dx dy \]
+So our new matrix $M'$ is:
+\begin{align*}
+M' =&\; \int_{-2a}^{2a} \int_{-2a}^{2a} \nabla I'(x,y) \nabla I'(x,y)^\top dx dy \\
+   =&\; \frac{1}{4} \int_{-2a}^{2a} \int_{-2a}^{2a} \nabla I(x/2,y/2) \nabla I(x/2,y/2)^\top dx dy 
+\end{align*}
+
+We will show by a change of coordinates $x' = x/2$ and $y' = y/2$ that $M' = M$
+\begin{align*}
+M' =&\; \frac{1}{4} \int_{-2a}^{2a} \int_{-2a}^{2a} \nabla I(x/2,y/2) \nabla I(x/2,y/2)^\top dx dy \\
+    =&\; \frac{1}{4} \int_{(-2a)/2}^{(2a)/2} \int_{(-2a)/2}^{(2a)/2} \nabla I(x',y') \nabla I(x',y')^\top (2dx') (2dy') \\
+    =&\; \frac{1}{4} \int_{-a}^{a} \int_{a}^{a} \nabla I(x',y') \nabla I(x',y')^\top 4 dx' dy' \\
+    =&\; \int_{-a}^{a} \int_{a}^{a} \nabla I(x',y') \nabla I(x',y')^\top dx' dy' = M
+\end{align*}
+
+Therefore since $M'=M$, $\mathbf{tr}(M') = \mathbf{tr}(M)$. In a discrete formulation, this might be an approximation
+but the results would be similar.
+
 b. What will happen to the trace of the matrix if the image will be rotated by 45$\deg$ ?
 \\
-We look at rotated image as $I'(\vec{x}) = I(R\vec{x})$. Therefore by the chain rule
+We look at rotated image as $I'(\vec{x}) = I(R\vec{x})$ (we assume the window is rotation invariant).
+Therefore by the chain rule
 $\nabla I'(\vec{x}) = R \nabla I(R\vec{x})$. So now with this, we can recompute $M$:
 \begin{align*}
     M'
@@ -72,6 +94,7 @@ $\nabla I'(\vec{x}) = R \nabla I(R\vec{x})$. So now with this, we can recompute 
     =&\; R M R^\top \\
 \end{align*}
 
+The last equality comes since we are summing over all $\vec{x}$. 
 So now our task is to compute $\mathbf{tr}(R M R^\top)$. It can be shown that $\mathbf{tr}(AB) = \mathbf{tr}(BA)$:
 \[ \mathbf{tr}(AB) = \sum_i (AB)_{ii} = \sum_i \sum_j A_{ij} B_{ji}
 = \sum_j \sum_i B_{ji} A_{ij} = \sum_j (BA)_{jj} = \mathbf{tr}(BA)  \]
@@ -97,13 +120,13 @@ $\frac{1}{2} I(x-1,y) - \frac{1}{2} I(x+1,y)$, which is the same as a discrete w
 $[ -1/2, 0, 1/2]$. Similarly for the $y$ direction. So we have:
 \[ \frac{\partial I}{\partial x} = \left\{
     \begin{array}{ll}
-        1/2 & \textrm{if } -1 \le x + y \le 0 \\
+        -1/2 & \textrm{if } -1 \le x + y \le 0 \\
         0 & \textrm{otherwise}
     \end{array} \right.
 \]
 \[ \frac{\partial I}{\partial y} = \left\{
     \begin{array}{ll}
-        1/2 & \textrm{if } -1 \le x + y \le 0 \\
+        -1/2 & \textrm{if } -1 \le x + y \le 0 \\
         0 & \textrm{otherwise}
     \end{array} \right.
 \]
@@ -176,7 +199,19 @@ yielding a  gradient in the direction of the radius $\nabla i = (\cos\theta,\sin
 The large rectangle extends for $\theta=0..\frac{\pi}{4}$ while the small rectangle extends for  $\theta=0..\frac{\pi}{8}$. Compute the autocorrelation matrix in both cases by replacing the sum with an integral, i.e., compute $\int\int \frac{\partial{I}}{\partial{x}}\,\,dxdy$, etc. Compute in both cases the trace and the determinant. Which of the rectangle interiors has more ``cornerness'' ?
 
 
-Since the gradient is zero everywhere except the circle, the $M$ matrix becomes:
+Since the gradient is zero everywhere except the circle, the gradient is in polar coordinates
+$\delta (r'-r) \nabla i$, where $\delta$ is the dirac delta function. The delta function is to model the sharp edge
+at the boundary of the circle (like the derivative of the step function). 
+
+So we get the $M$ computed in polor coordinates is:
+\begin{align*}
+    M =&\; \int_{0}^{R} \int_{0}^{\theta_{max}} \delta(r'-r) \nabla i(\theta) \nabla i(\theta)^\top r' dr' d\theta \\
+      =&\; \int_{0}^{R} \delta(r'-r) r' dr' \int_{0}^{\theta_{max}} \nabla i(\theta) \nabla i(\theta)^\top d\theta \\
+      =&\; r \int_{0}^{\theta_{max}} \nabla i(\theta) \nabla i(\theta)^\top d\theta \\
+\end{align*}
+
+As we don't know what $r$ is, we will ignore it and compute the other side part of the integral to
+determine the ``cornerness'' of the two images. 
 \begin{align*}
     M =&\; \int_{\theta}[\cos\theta\;\sin\theta]^\top[\cos\theta\;\sin\theta] d\theta \\
     =&\; \int_{\theta}
