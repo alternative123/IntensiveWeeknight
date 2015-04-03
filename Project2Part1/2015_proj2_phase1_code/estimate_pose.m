@@ -73,22 +73,22 @@ tagsY = cumsum(tagsY,2);
 
 ids = sensor.id+1; % April tag ids seen in this image
 % Create the points needed for the Homography estimation
-p1 = ...
+p_w = ...
     [ tagsX(ids), tagsX(ids)      , tagsX(ids)+w_tag, tagsX(ids)+w_tag, tagsX(ids)+w_tag/2;
       tagsY(ids), tagsY(ids)+w_tag, tagsY(ids)      , tagsY(ids)+w_tag, tagsY(ids)+w_tag/2;
       ones(1,5*length(ids))  ];
-p2 = [ sensor.p4, sensor.p3, sensor.p1, sensor.p2, sensor.p0;
+p_i = [ sensor.p4, sensor.p3, sensor.p1, sensor.p2, sensor.p0;
        ones(1,5*length(ids)) ];
 
 % Allocate the matrix size
-A = zeros(2*length(p1), 9);
+A = zeros(2*length(p_w), 9);
 
 % Instantiate the matrix
-for i = 1:length(p1)
+for i = 1:length(p_w)
    row = 2*(i-1) + 1;
    % Set up the two rows associated with this point relation
-   A(row, :)     = [p1(:,i)', zeros(1,3), -p2(1,i)*p1(:,i)'];
-   A(row + 1, :) = [zeros(1,3), p1(:,i)', -p2(2,i)*p1(:,i)'];
+   A(row, :)     = [p_w(:,i)', zeros(1,3), -p_i(1,i)*p_w(:,i)'];
+   A(row + 1, :) = [zeros(1,3), p_w(:,i)', -p_i(2,i)*p_w(:,i)'];
 end
 
 % Find the kernel of this matrix using SVD

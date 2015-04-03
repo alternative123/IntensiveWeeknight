@@ -6,8 +6,8 @@ addpath(genpath([curr_dir,'/data']))
 
 %% INITIALIZE THINGS
 init_script
-load studentdata1
-% load studentdata4
+% load studentdata1
+load studentdata4
 % load studentdata9
 
 
@@ -20,9 +20,6 @@ eul = zeros(dataL, 3);
 for i = 1:dataL
     sensor = data(i);
     ts(i) = sensor.t;
-    if i == dataL/2
-        disp('hello!!')
-    end
     [p, e] = estimate_pose_handle(sensor);
     if ~isempty(p)
         pose(i, :) = p';

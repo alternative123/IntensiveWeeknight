@@ -1,0 +1,35 @@
+Notes
+
+2D-3D pose rectification 
+Called PnP problem (Perspective n Points)
+
+Given:
+P_i in R^3, i = 1, ..., N in world
+p_i in R^2, i = 1, ..., N in image
+Find:
+R in SO(3), T in R^3 s.t.
+lambda_i*p_i = R*P_1 + T
+In other words, where is the camera?
+
+Another problem:
+You are in a ship on a cloudy night. You see a light house,
+and you know where is the map. 
+(A) We have a compass - we can find our bearing from this.
+    But we can't find our exact distance so we know where we
+    are on a line
+(B) We see two light house. We (by elementary geometry) can
+    only constrain ourselves to a circle. 
+(C) We see three light houses. Then we can know our position
+    exactly
+
+So for the 3D case, how many points do we need? Tricky
+           [ x_i ]       [ X_i ]
+lambda_i * [ y_i ] = R * [ Y_i ] + T
+           [  1  ]       [ Z_i ] 
+   ^- Unknown        ^- Unknown    ^- Unknown
+3 Unknowns for R, 3 Unknowns for T. Can eliminate the 
+lambda_i's: hi there
+(r_32*X_i + r_32*Y_i + r_33*Z_i + T_3)*x_i = r_11*X_i + r_12*Y_i + r_13*Z_i + T_1
+(r_32*X_i + r_32*Y_i + r_33*Z_i + T_3)*y_i = r_21*X_i + r_22*Y_i + r_23*Z_i + T_3
+
+
