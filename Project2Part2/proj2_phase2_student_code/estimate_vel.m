@@ -40,6 +40,12 @@ persistent point_tracker
 persistent points
 persistent valid_state
 
+if isempty(sensor.id)
+    vel = [];
+    omg = [];
+    return
+end
+
 % Initialization code
 if isempty(frame_image)
     frame_image = sensor.img;
