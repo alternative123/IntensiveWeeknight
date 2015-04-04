@@ -37,6 +37,7 @@ tagsY(:,4) = w_tag+0.178; % Because the April tag folks decided that it
 tagsY(:,7) = w_tag+0.178; % would be better to make things wierd for us 
 tagsY = cumsum(tagsY,2);
 
+clear estimate_vel
 estimate_vel_handle = @(sensor) estimate_vel(sensor,K,tagsX,tagsY);
 
 disp('Initialized')

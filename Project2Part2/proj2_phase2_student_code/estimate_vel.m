@@ -127,7 +127,7 @@ end
 % figure
 % imshow(frame_image)
 % Recompute value
-P = [fx(p_cur(1,best_inliers)',p_cur(2,best_inliers)',Z(best_inliers));
+P = [ fx(p_cur(1,best_inliers)',p_cur(2,best_inliers)',Z(best_inliers));
       fy(p_cur(1,best_inliers)',p_cur(2,best_inliers)',Z(best_inliers))];
 v_omgs = P \ reshape(flow(:,best_inliers)',[],1);
 
