@@ -50,9 +50,9 @@ end
 if isempty(frame_image)
     frame_image = sensor.img;
     point_tracker = vision.PointTracker;
-    % points = corner(frame_image,'MinimumEigenvalue');
-    points = detectMinEigenFeatures(frame_image);
-    points = points.Location;
+    points = corner(frame_image,'MinimumEigenvalue');
+    % points = detectMinEigenFeatures(frame_image);
+    % points = points.Location;
     initialize(point_tracker,points,frame_image);
     valid_state = true;
     vel = [0;0;0];
@@ -72,9 +72,9 @@ end
 if ~valid_state
     % Redecting corners -- slow
     point_tracker = vision.PointTracker;
-    % points = corner(frame_image,'MinimumEigenvalue');
-    points = detectMinEigenFeatures(frame_image);
-    points = points.Location;
+    points = corner(frame_image,'MinimumEigenvalue');
+    % points = detectMinEigenFeatures(frame_image);
+    % points = points.Location;
     initialize(point_tracker,points,frame_image);
     valid_state = true;
 end
