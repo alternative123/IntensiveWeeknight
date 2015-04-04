@@ -55,10 +55,12 @@ if isempty(frame_image)
     points = points.Location;
     initialize(point_tracker,points,frame_image);
     valid_state = true;
-    vel = [];
-    omg = [];
+    vel = [0;0;0];
+    omg = [0;0;0];
     return
 end
+error('We got to this point')
+
 % Find pose
 [T_cw, R_cw, ~, ~] = my_estimate_pose(sensor, K, tagsX, tagsY);
 if isempty(T_cw) || isempty(R_cw) % Invalid state
@@ -77,7 +79,7 @@ if ~valid_state
     initialize(point_tracker,points,frame_image);
     valid_state = true;
 end
-error('We got to this point')
+
 % Get feature tracks
 next_frame = sensor.img;
 [curr_points,valid_points] = step(point_tracker,next_frame);
