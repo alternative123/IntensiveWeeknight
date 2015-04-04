@@ -27,11 +27,11 @@ function [vel, omg] = estimate_vel(sensor, varargin)
 K = varargin{1};
 tagsX = varargin{2};
 tagsY = varargin{3};
-t_cb = [-0.04, 0.0, -0.03]';
+NSELECT_POINTS = 350;
 MIN_POINTS = 100;
-RANSAC_ITERS = 150;
+RANSAC_ITERS = 400;
 MIN_SAMPLE_SIZE = 3;
-RANSAC_THRESH = 0.05;
+RANSAC_THRESH = 0.009;
 dt = 1/50;
 
 % Persistent variables
@@ -50,8 +50,9 @@ end
 if isempty(frame_image)
     frame_image = sensor.img;
     point_tracker = vision.PointTracker;
-    points = corner(frame_image,'MinimumEigenvalue');
-    % points = detectMinEigenFeatures(frame_image);
+    points = corner(frame_image,'Harris',NSELECT_POINTS);
+    % points = detectFASTFeatures(frame_image);
+    % points = points.selectStrongest(NSELECT_POINTS);
     % points = points.Location;
     initialize(point_tracker,points,frame_image);
     valid_state = true;
@@ -61,8 +62,8 @@ if isempty(frame_image)
 end
 
 % Find pose
-[T_cw, R_cw, ~, ~] = my_estimate_pose(sensor, K, tagsX, tagsY);
-if isempty(T_cw) || isempty(R_cw) % Invalid state
+[T_wc, R_wc, ~, ~] = my_estimate_pose(sensor, K, tagsX, tagsY);
+if isempty(T_wc) || isempty(R_wc) % Invalid state
     vel = [];
     omg = [];
     return
@@ -72,8 +73,9 @@ end
 if ~valid_state
     % Redecting corners -- slow
     point_tracker = vision.PointTracker;
-    points = corner(frame_image,'MinimumEigenvalue');
-    % points = detectMinEigenFeatures(frame_image);
+    points = corner(frame_image,'Harris',NSELECT_POINTS);
+    % points = detectFASTFeatures(frame_image);
+    % points = points.selectStrongest(NSELECT_POINTS);
     % points = points.Location;
     initialize(point_tracker,points,frame_image);
     valid_state = true;
@@ -96,17 +98,21 @@ p_cur = K \ [new_points'; ones(1,n)];
 flow = (p_cur(1:2,:) - p_prev(1:2,:))/dt;% new_points - points;
 
 % Compute the depths
-Z = ((R_cw(:,3)'*T_cw)./(R_cw(:,3)'*p_cur))';
+Z = ((R_wc(:,3)'*T_wc)./(R_wc(:,3)'*p_cur))';
+
+% scatter3(p_cur(1,:),p_cur(2,:),Z)
+% axis equal
 
 % RANSAC to estimate velocity and angular velocity
-fx = @(x,y,z) [ -1./z, zeros(size(x)), x./z,     x.*y, -(1-x.^2),  y ];
+fx = @(x,y,z) [ -1./z, zeros(size(x)), x./z,     x.*y, -(1+x.^2),  y ];
 fy = @(x,y,z) [ zeros(size(x)), -1./z, y./z, (1+y.^2),     -x.*y, -x ];
 
 max_inliers = 0;
 best_inliers = [];
 for it = 1:RANSAC_ITERS
     sample = randperm(n,MIN_SAMPLE_SIZE);
-    v_omgs = [fx(p_cur(1,sample)',p_cur(2,sample)',Z(sample));
+    v_omgs = ...
+        [fx(p_cur(1,sample)',p_cur(2,sample)',Z(sample));
           fy(p_cur(1,sample)',p_cur(2,sample)',Z(sample))] \ ...
           reshape(flow(:,sample)',[],1);
     errs = ([fx(p_cur(1,:)',p_cur(2,:)',Z);
@@ -133,8 +139,16 @@ P = [ fx(p_cur(1,best_inliers)',p_cur(2,best_inliers)',Z(best_inliers));
 v_omgs = P \ reshape(flow(:,best_inliers)',[],1);
 
 
-omg = R_cw*v_omgs(4:6);
-vel = R_cw*(v_omgs(1:3) + cross(v_omgs(4:6),t_cb));
+XYZ = [-0.04, 0.0, -0.03]';
+Yaw = -pi/4;
+Roll = pi;
+Rz = @(th) [cos(th), -sin(th), 0; sin(th), cos(th), 0; 0, 0, 1];
+Rx = @(th) [1, 0, 0; 0, cos(th), -sin(th); 0, sin(th), cos(th)];
+R_toIMU = Rz(Yaw)*Rx(Roll);
+T_toIMU = -R_toIMU'*XYZ;
+
+omg = R_wc'*v_omgs(4:6);
+vel = R_wc'*(v_omgs(1:3) - cross(T_toIMU,v_omgs(4:6)));
 
 points = curr_points;
 

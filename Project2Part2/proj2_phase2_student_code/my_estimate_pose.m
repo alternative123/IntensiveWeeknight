@@ -8,14 +8,6 @@ end
 
 % Camera-IMU Calibration (see attached images for details):
 w_tag = 0.152; % Tag width
-XYZ = [-0.04, 0.0, -0.03]';
-Yaw = -pi/4;
-Roll = pi;
-Rz = @(th) [cos(th), -sin(th), 0; sin(th), cos(th), 0; 0, 0, 1];
-Rx = @(th) [1, 0, 0; 0, cos(th), -sin(th); 0, sin(th), cos(th)];
-R_toIMU = Rz(Yaw)*Rx(Roll);
-T_toIMU = -R_toIMU'*XYZ;
-Trans_toIMU = [ R_toIMU', T_toIMU; 0 0 0 1 ];
 
 
 ids = sensor.id+1; % April tag ids seen in this image
@@ -50,8 +42,10 @@ H = K\H;
 % Transform solution into desired frame
 [U,~,V] = svd([H(:,1) H(:,2) cross(H(:,1),H(:,2))]);
 
-R = U*[1,0,0; 0,1,0; 0,0,det(U*V')]*V';
-T = H(:,3) / norm(H(:,1));
+R_cw = U*[1,0,0; 0,1,0; 0,0,det(U*V')]*V';
+T_cw = H(:,3) / norm(H(:,1));
+R = R_cw;
+T = T_cw;
 
 % Trans_C = [ R1, T1; 0 0 0 1 ];
 % Trans_B = Trans_toIMU*Trans_C;
