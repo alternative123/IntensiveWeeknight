@@ -77,7 +77,7 @@ if ~valid_state
     initialize(point_tracker,points,frame_image);
     valid_state = true;
 end
-
+error('We got to this point')
 % Get feature tracks
 next_frame = sensor.img;
 [curr_points,valid_points] = step(point_tracker,next_frame);
