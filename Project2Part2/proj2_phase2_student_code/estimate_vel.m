@@ -27,15 +27,15 @@ function [vel, omg] = estimate_vel(sensor, varargin)
 K = varargin{1};
 tagsX = varargin{2};
 tagsY = varargin{3};
-NSELECT_POINTS = 350;
+NSELECT_POINTS = 500;
 MIN_POINTS = 100;
 RANSAC_ITERS = 400;
 MIN_SAMPLE_SIZE = 3;
-RANSAC_THRESH = 0.009;
+RANSAC_THRESH = 0.01;
 dt = 1/50;
 
 % Persistent variables
-persistent frame_image
+persistent last_image
 persistent point_tracker
 persistent points
 persistent valid_state
@@ -47,14 +47,14 @@ if isempty(sensor.id)
 end
 
 % Initialization code
-if isempty(frame_image)
-    frame_image = sensor.img;
-    point_tracker = vision.PointTracker;
-    points = corner(frame_image,'Harris',NSELECT_POINTS);
-    % points = detectFASTFeatures(frame_image);
-    % points = points.selectStrongest(NSELECT_POINTS);
-    % points = points.Location;
-    initialize(point_tracker,points,frame_image);
+if isempty(last_image)
+    last_image = sensor.img;
+    point_tracker = vision.PointTracker('MaxBidirectionalError',0.005);
+    % points = corner(frame_image,'MinEigen',NSELECT_POINTS);
+    points = detectBRISKFeatures(last_image);
+    points = points.selectStrongest(NSELECT_POINTS);
+    points = points.Location;
+    initialize(point_tracker,points,last_image);
     valid_state = true;
     vel = [0;0;0];
     omg = [0;0;0];
@@ -72,29 +72,29 @@ end
 % Check if we have enough points to keep tracking
 if ~valid_state
     % Redecting corners -- slow
-    point_tracker = vision.PointTracker;
-    points = corner(frame_image,'Harris',NSELECT_POINTS);
-    % points = detectFASTFeatures(frame_image);
-    % points = points.selectStrongest(NSELECT_POINTS);
-    % points = points.Location;
-    initialize(point_tracker,points,frame_image);
+    point_tracker = vision.PointTracker('MaxBidirectionalError',0.005);
+    % points = corner(frame_image,'Harris',NSELECT_POINTS);
+    points = detectBRISKFeatures(last_image);
+    points = points.selectStrongest(NSELECT_POINTS);
+    points = points.Location;
+    initialize(point_tracker,points,last_image);
     valid_state = true;
 end
 
 % Get feature tracks
 next_frame = sensor.img;
-[curr_points,valid_points] = step(point_tracker,next_frame);
+[new_points,valid_points] = step(point_tracker,next_frame);
 if sum(valid_points) < MIN_POINTS
     valid_state = false;
 end
-new_points = curr_points(valid_points,:);
+cur_points = new_points(valid_points,:);
 prev_points = points(valid_points,:);
-frame_image = next_frame;
+last_image = next_frame;
 
 % Flow computation
 n = length(prev_points);
 p_prev = K \ [prev_points'; ones(1,n)];
-p_cur = K \ [new_points'; ones(1,n)];
+p_cur = K \ [cur_points'; ones(1,n)];
 flow = (p_cur(1:2,:) - p_prev(1:2,:))/dt;% new_points - points;
 
 % Compute the depths
@@ -123,6 +123,9 @@ for it = 1:RANSAC_ITERS
         max_inliers = sum(inliers);
         best_inliers = inliers;
     end
+    if max_inliers == length(p_cur)
+        break;
+    end
 end
 
 % best_inliers = true(length(p_cur),1);
@@ -150,7 +153,7 @@ T_toIMU = -R_toIMU'*XYZ;
 omg = R_wc'*v_omgs(4:6);
 vel = R_wc'*(v_omgs(1:3) - cross(T_toIMU,v_omgs(4:6)));
 
-points = curr_points;
+points = new_points;
 
 end
 
