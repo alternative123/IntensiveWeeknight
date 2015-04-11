@@ -1,0 +1,521 @@
+\documentclass[11pt,english]{article}
+
+\usepackage[latin9]{inputenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{latexsym}
+\usepackage{xspace}
+\usepackage{pdflscape}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks]{hyperref}
+\usepackage{enumerate}
+\usepackage{ifthen}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes}
+\usepackage{algorithm2e}
+
+\newcommand{\rthree}{\mathbb{R}^3}
+\title{MEAM 620 Advanced Robotics: Assignment 4\\
+Due:  Wednesday April 8th}
+ \author{Stephen Phillips}
+\date{\today}
+
+\newcommand{\vect}[2]{\begin{pmatrix} #1 \\ #2 \end{pmatrix}}
+
+\begin{document}
+\maketitle
+In all the problems below, you might find a close problem in the literature. We recommend that you do not look into the literature. If you still commit the ``crime'' and find a solution in the literature, please cite the exact source you followed to write the solution. 
+No citation of the source will result in ZERO points. The problems are stated in such a way that we can see whether you followed a 3rd party solution (in most cases we ask for a specific unknown to be computed).
+
+
+\begin{enumerate}
+
+\item [40pts]
+ A circle has known radius $\rho$ and can be assumed to be in the $Z=0$ plane centered at $(0,0,0)$ origin of a world coordinate system. A quadrotor observes the circle as an ellipse in the image plane (this is not always the case but we assume that the quadrotor is sufficiently far). Compute the altitude ($Z$) of the quadrotor in the world coordinate system as well as its distance to the circle center. 
+Which other degree(s) of freedom of the quadrotor can be computed?
+
+So we measure this 3 by 3 matrix from our ellipse on the image. This is described in detail later.
+We now characterize the points in the world. This was gone over in class.
+The points of a circle or radius $\rho$ can with center at $(0,0,0)$ be written as:
+\[ x^2 + y^2 = \rho^2,\;\;\; z = 0 \]
+We can also write them in vector notation. Introducing the matrix $A$:
+\[ A = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0  \\ 0 & 0 & -\rho^2 \end{pmatrix} \]
+We rewrite the equations as:
+\[ x_w^\top A x_w = \rho^2 \]
+Note that this shows our inherant ambiguity around the axis of the circle, since:
+\begin{align*}
+R_z^\top AR_z
+=&\; \begin{pmatrix}
+	\cos(\theta) & -\sin(\theta) & 0 \\
+	\sin(\theta) & \cos(\theta) & 0  \\
+	0 & 0 & 1
+\end{pmatrix} \begin{pmatrix}
+	1 & 0 & 0 \\
+	0 & 1 & 0 \\
+	0 & 0 & -\rho^2
+\end{pmatrix} \begin{pmatrix}
+	\cos(\theta) & \sin(\theta) & 0 \\
+	-\sin(\theta) & \cos(\theta) & 0  \\
+	0 & 0 & 1
+\end{pmatrix} \\
+=&\; \begin{pmatrix}
+	1 & 0 & 0 \\
+	0 & 1 & 0 \\
+	0 & 0 & -\rho^2
+\end{pmatrix} \\
+=&\; A
+\end{align*}
+
+So rotating will not change the view of the points at all. This is just like the case gone over in class of the 
+cylinder.
+
+Since the points are all on a plane, the points in the camera and world are related by:
+\begin{equation*}
+x_c = \begin{pmatrix} X_c \\ Y_c \\ 1 \end{pmatrix} = 
+\begin{pmatrix} | & | & | \\ r_1 & r_2 & t \\ | & | & | \end{pmatrix}
+\begin{pmatrix} X_w \\ Y_w \\ 1 \end{pmatrix} =
+H x_w
+\end{equation*}
+So we rewrite the equation in terms of camera coordinates:
+\[ x_c^\top H^{-\top} A H^{-1} x_c = 0  \]
+
+We have the matrix $S = H^{-\top} A H^{-1}$ from our image, given by the center and major/minor axes of the ellipse.
+Now we want to compute our height from the ground, and how far we are from the circle. Now due to 
+the aforementioned ambiguity around the axis of the circle, we can define our x-axis and y-axis how we please, since
+we won't be able to recover them anyway. So we choose the x-axis to point away from the center of the camera so that
+the translation in the world frame has no y component. In other words, we define the world frame such that
+$r_2^\top t = 0$. This means we just need to recover $r_1^\top t$ and $r_3^\top t$ to recover our height and 
+distance.
+
+So first note that $\det(H) = r_1^\top (r_2 \times t) = t^\top (r_1 \times r_2) = t^\top r_3 = r_3^\top t$, which
+is exactly what we want. We can extract this from the measured matrix $S$ and our knowledge of $\rho$:
+\begin{align*}
+\det(S) =&\; \det(H^{-\top} A H^{-1}) \\
+=&\; \det(H)^{-2} \det(A) \\
+=&\; (r_3^\top t)^{-2} (-\rho^2) \\
+\implies &\; r_3^\top t = \sqrt{\frac{-\rho^2}{\det(S)}}
+\end{align*}
+
+Now we want to fine $r_1^\top t$. Equivalently, we can find $\|t\|$, since we know that is the hypotenuse of a right
+triangle with sides $r_1^\top t$ and $r_3^\top t$. We can extract this from the trace of $S$. To show this we 
+expand $S$ out. We use the 3 by 3 matrix inversion idenity and our knowledge of $H$ to compute $H^{-1}$:
+\begin{equation*}
+H^{-1} = \frac{1}{\det(H)} \begin{pmatrix}
+	(r_1 \times t)^\top \\
+	(t \times r_2)^\top \\
+	(r_1 \times r_2)^\top
+\end{pmatrix} = \frac{1}{r_3^\top t} \begin{pmatrix}
+	(r_1 \times t)^\top \\
+	(t \times r_2)^\top \\
+	r_3^\top
+\end{pmatrix} 
+\end{equation*}
+So now we expand $S$:
+\begin{align*}
+S =&\; H^{-\top} A H^{-1} \\
+=&\; \frac{1}{(r_3^\top t)^2} \begin{pmatrix}
+	(r_1 \times t)^\top \\
+	(t \times r_2)^\top \\
+	r_3^\top
+\end{pmatrix}^{\top} \begin{pmatrix}
+	1 & 0 & 0 \\
+	0 & 1 & 0 \\
+	0 & 0 & -\rho^2
+\end{pmatrix} \begin{pmatrix}
+	(r_1 \times t)^\top \\
+	(t \times r_2)^\top \\
+	r_3^\top
+\end{pmatrix} \\
+=&\; \frac{1}{(r_3^\top t)^2} \begin{pmatrix}
+	| & | & | \\
+	(r_1 \times t) & (t \times r_2) & r_3 \\
+	| & | & | \\
+\end{pmatrix} \begin{pmatrix}
+	(r_1 \times t)^\top \\
+	(t \times r_2)^\top \\
+	-\rho^2 r_3^\top
+\end{pmatrix} \\
+=&\; (r_1 \times t)(r_1 \times t)^\top + (t \times r_2)(t \times r_2)^\top
+		- \rho^2 r_3 r_3^\top \\
+\end{align*}
+To take the trace of this we use the identity:
+\[ \mathbf{tr}(ab^\top) = a^\top b \]
+So:
+\begin{align*}
+\mathbf{tr}(S) 
+=&\; \mathbf{tr}((r_1 \times t)(r_1 \times t)^\top + (t \times r_2)(t \times r_2)^\top
+		- \rho^2 r_3 r_3^\top) \\
+=&\; \mathbf{tr}((r_1 \times t)(r_1 \times t)^\top) + \mathbf{tr}((t \times r_2)(t \times r_2)^\top)
+		- \rho^2 \mathbf{tr}((r_3 r_3^\top) \\
+=&\; (r_1 \times t)^\top (r_1 \times t) + (t \times r_2)^\top (t \times r_2) - \rho^2 r_3^\top r_3 \\
+=&\; \|r_1 \times t\|^2 + \| t \times r_2 \|^2 - \rho^2 \| r_3 \|^2 \\
+=&\; \|r_1\|^2 \|t\|^2 (\sin(\theta_{r_1}))^2 + \|t\|^2 \|r_2\|^2 (\sin(\theta_{r_2}))^2 - \rho^2 \| r_3 \|^2 \\
+=&\; \|t\|^2 (\sin(\theta_{r_1}))^2 + \|t\|^2 (\sin(\theta_{r_2}))^2 - \rho^2 \\
+\end{align*}
+
+Where $\theta_{r_1}$ and $\theta_{r_2}$ are the angles between $t$ and $r_1$ and $r_2$ respectively.
+Now we use the fact that we designed $r_2$ such that $r_2^\top t = 0$, and therefore $\theta_{r_2} = \pi/2$.
+We also use the fact that $\sin(\theta_{r_1}) = r_3^\top t / \|t\|$ (since sine is the length of the opposite side
+divided by the length of the hypotenuse). Plugging these in:
+\begin{align*}
+\mathbf{tr}(S) 
+=&\; \|t\|^2 ((\sin(\theta_{r_1}))^2 + (\sin(\theta_{r_2}))^2) - \rho^2 \\
+=&\; \|t\|^2 \left(\left(\frac{r_3^\top t}{\|t\|}\right)^2 + 1\right) - \rho^2 \\
+=&\; r_3^\top t + \|t\|^2 - \rho^2 \\
+\implies &\; \|t\| = \sqrt{\mathbf{tr}(S) + \rho^2 - r_3^\top t} \\
+\end{align*}
+
+So we now have the height of our camera and the distance from the origin, from which we can recover
+$r_1^\top t$. From this triangle we can also get the altitude of the rotation. As mentioned before we
+cannot get the rotation around the $r_3$ axis from the circle, but we can get the other areas of rotation
+from the rotation of the ellipse on the image. Technically weather we are below or above the image is ambiguous
+because looking up at the circle looks the same as looking down at the circle, but we assume we are above the
+ground, so that helps us disambiguate reflections around the ground plane.
+
+(I was told we needed to describe how we would measure the ellipse on the image, so here is a description)
+First we should describe how we can characterize the ellipse on the image plane. An ellipse can be described by the
+equation:
+\[ (x - c)^\top B (x - c) = 1 \]
+where $B$ is a positive definite matrix with the inverse of the of the eigenvalues squared are the lengths of the
+principle axes and the rotation is the angle from the minor axis, and $c$ is the center of the ellipse.
+You can measure the center and by taking the mean of the points on the image. There are multiple ways to get the axis
+from the points on the image. You could use a hough transform like thing for instance, or use a least square fit of
+the sample points to find the coefficients.  
+Multiplying the equation out we get:
+\begin{align*}
+& (x - c)^\top B (x - c) = 1 \\
+\implies & x^\top B x - 2 c^\top B x + (c^\top B c - 1) = 0 \\
+\implies & \vect{x}{1}^\top \begin{pmatrix}
+      B    &      -Bc         \\
+ -c^\top B & (c^\top B c - 1)
+\end{pmatrix} \vect{x}{1}^\top = 0
+\end{align*}
+
+And that is our matrix $S$ that we use.
+
+% The points in world coordinates can be written in camera coordinates as:
+% \[ x_w = R_{wc} x_c + T_{wc}  \]
+% Now substitute things into the equations:
+% \begin{align*}
+% & x_w^\top A x_w = 0 \\
+% \iff & (R_{wc} x_c + T_{wc})^\top A (R_{wc} x_c + T_{wc}) = \rho^2 \\
+% \iff &
+% x_c^\top R_{wc}^\top A R_{wc} x_c + 2 T_{wc}^\top R_{wc} x_c + (T_{wc}^\top A T_{wc} - \rho^2)=0\\
+% &(0,0,1)x_w = 0 \\
+% \iff &(0,0,1)(R_{wc} x_c + T_{wc}) = 0 \\
+% \iff &(0,0,1) R_{wc} x_c = -(0,0,1)T_{wc} \\
+% \end{align*}
+% Now we can only determine the camera coordinates up to a depth ($x_c = \lambda x$), so we plug this
+% into the equations:
+% \begin{align*}
+% & \lambda (0,0,1) R_{wc} x = -(0,0,1)T_{wc} \\
+% \implies & \lambda = \frac{-(0,0,1)T_{wc}}{(0,0,1) R_{wc}x} \\
+% &
+% \lambda^2 x^\top R_{wc}^\top A R_{wc} x
+% 	+  \lambda 2 T_{wc}^\top R_{wc} x + (T_{wc}^\top A T_{wc} - \rho^2)=0\\
+% \implies &
+% \lambda^2 x^\top R_{wc}^\top A R_{wc} x
+% 	+  \lambda 2 T_{wc}^\top R_{wc} x + (T_{wc}^\top A T_{wc} - \rho^2)=0\\
+% \end{align*}
+
+
+\item[40pts]
+A quadrotor is in an environment with vertical lines (such as vertical edges of wall intersections) of known $(x,y)$ position (on the ground plane) in a 2D map.  The quadrotor is aligned so that the $Z$-axis of the camera is vertical in the world. Vertical lines in the world are then projected to lines through the image center. The only measurement in the image is the bearing $\beta_i$ of each line measured with respect to the image $x$-axis. Show how you can estimate the $(x,y)$ position of the camera in the 2D map given the projections $\beta_i$ of vertical lines with known map positions. How many lines suffice to compute the position? If your computation is geometric you still need to provide a formula for the estimated $(x,y)$ position of the camera. 
+
+First note that we can orient the $z$-axis up or down, and it will not make a difference on the image, so we won't 
+address that ambiguity. Since we can only rotate around the $z$-axis, we can then express the equations as:
+\begin{equation*}
+ \lambda \begin{pmatrix} x \\ y \\ 1 \end{pmatrix} = 
+\begin{pmatrix} \cos\theta & \sin\theta & 0
+\\ -\sin\theta & \cos\theta & 0
+\\ 0 & 0 & 1 
+\end{pmatrix} \begin{pmatrix} X_i \\ Y_i \\ Z \end{pmatrix} + \begin{pmatrix} t_x \\ t_y \\ t_z \end{pmatrix}.
+\end{equation*}
+$X_i$ and $Y_i$ are the given positions of the vetical lines, since we have the correspondences.
+This equation holds for all $Z$.  Since we cannot tell from the vertical lines our height in the world, and $Z$ is
+arbitrary, we ignore the $Z$ components and get:
+\begin{equation*}
+ \lambda \begin{pmatrix} x \\ y \end{pmatrix} = 
+\begin{pmatrix} \cos\theta & \sin\theta 
+\\ -\sin\theta & \cos\theta 
+\end{pmatrix} \begin{pmatrix} X_i \\ Y_i \end{pmatrix} + \begin{pmatrix} t_x \\ t_y \end{pmatrix}.
+\end{equation*}
+
+We want to get this in terms of the bearing $\beta_i$. The key observation is that $\tan \beta_i = y/x$, which we
+can compute from the bearings. Therefore, if we divide these equations, we get:
+\begin{equation*}
+\frac{y}{x} = \tan \beta_i = \frac{-\sin\theta X_i + \cos\theta Y_i + t_y}{\cos\theta X_i + \sin\theta Y_i + t_x}
+\end{equation*}
+
+So now we can create our equations from this. We have 3 unknowns, so we need 3 equations to solve this. But we need
+to get $\cos \theta$ and $\sin \theta$ in a from that is usable. So now for the algebra:
+\begin{align*}
+& (\cos\theta X_1 + \sin\theta Y_1 + t_x)\tan \beta_1 = -\sin\theta X_1 + \cos\theta Y_1 + t_y \\
+& (\cos\theta X_2 + \sin\theta Y_2 + t_x)\tan \beta_2 = -\sin\theta X_2 + \cos\theta Y_2 + t_y \\
+& (\cos\theta X_3 + \sin\theta Y_3 + t_x)\tan \beta_3 = -\sin\theta X_3 + \cos\theta Y_3 + t_y \\
+\intertext{Denote $\tan \beta_i$ as $d_i$, for brevity's sake.}
+& (d_1 X_1 - Y_1)\cos\theta + (d_1 Y_1 + X_1)\sin\theta + d_1 t_x  - t_y = 0 \\
+& (d_2 X_2 - Y_2)\cos\theta + (d_2 Y_2 + X_2)\sin\theta + d_2 t_x  - t_y = 0 \\
+& (d_3 X_3 - Y_3)\cos\theta + (d_3 Y_3 + X_3)\sin\theta + d_3 t_x  - t_y = 0 \\
+\intertext{So now we first eliminate the translation variables. Combining the first equations:}
+& (d_1 X_1 - Y_1)\cos\theta + (d_1 Y_1 + X_1)\sin\theta + d_1 t_x  = 
+	(d_2 X_2 - Y_2)\cos\theta + (d_2 Y_2 + X_2)\sin\theta + d_2 t_x  \\
+& t_x = \frac{(d_1 X_1 - Y_1)\cos\theta + (d_1 Y_1 + X_1)\sin\theta - 
+	(d_2 X_2 - Y_2)\cos\theta - (d_2 Y_2 + X_2)\sin\theta}{d_2 - d_1} \\
+& t_x = \frac{(d_1 X_1 - Y_1 - d_2 X_2 + Y_2)}{d_2 - d_1}\cos\theta
+		+ \frac{(d_1 Y_1 + X_1 - d_2 Y_2 - X_2)}{d_2 - d_1}\sin\theta \\
+\end{align*}
+Plug this into the third equation and we get:
+\begin{align*}
+t_y =& (d_3 X_3 - Y_3)\cos\theta + (d_3 Y_3 + X_3)\sin\theta \\
+& \;\;\; + d_3
+	\left(\frac{(d_1 X_1 - Y_1 - d_2 X_2 + Y_2)}{d_2 - d_1}\cos\theta
+		+ \frac{(d_1 Y_1 + X_1 - d_2 Y_2 - X_2)}{d_2 - d_1}\sin\theta \right) \\
+t_y =& \left( \frac{d_3(d_1 X_1 - Y_1 - d_2 X_2 + Y_2)}{d_2 - d_1} + (d_3 X_3 - Y_3) \right) \cos\theta \\
+& \;\;\; + \left( \frac{d_3(d_1 Y_1 + X_1 - d_2 Y_2 - X_2)}{d_2 - d_1}+(d_3 Y_3 + X_3)\right) \sin\theta  \\
+\end{align*}
+Now we can plug this back into the first equation to get everything in terms of sine and cosine.
+\begin{align*}
+& (d_1 X_1 - Y_1)\cos\theta + (d_1 Y_1 + X_1)\sin\theta + d_1 t_x  - t_y = 0 \\
+\implies & (d_1 X_1 - Y_1)\cos\theta + (d_1 Y_1 + X_1)\sin\theta \\
+& \;\;\; + d_1
+	\left(\frac{(d_1 X_1 - Y_1 - d_2 X_2 + Y_2)}{d_2 - d_1}\cos\theta
+		+ \frac{(d_1 Y_1 + X_1 - d_2 Y_2 - X_2)}{d_2 - d_1}\sin\theta \right) \\
+&\;\;\; - \left( \frac{d_3(d_1 X_1 - Y_1 - d_2 X_2 + Y_2)}{d_2 - d_1} + (d_3 X_3 - Y_3) \right) \cos\theta \\
+& \;\;\; - \left( \frac{d_3(d_1 Y_1 + X_1 - d_2 Y_2 - X_2)}{d_2 - d_1}+(d_3 Y_3 + X_3)\right) \sin\theta = 0\\
+\implies 
+& \left( \frac{d_1-d_3}{d_2 - d_1}(d_1 X_1 - Y_1 - d_2 X_2 + Y_2)
+	+ (d_3 X_3 - Y_3) + (d_1 X_1 - Y_1) \right) \cos\theta \\
+& \;\;\; + \left( \frac{d_1-d_3}{d_2 - d_1}(d_1 Y_1 + X_1 - d_2 Y_2 - X_2)
+	+ (d_3 Y_3 + X_3) + (d_1 Y_1 + X_1) \right) \sin\theta = 0\\
+\implies 
+& \frac{\sin \theta}{\cos \theta} = \tan\theta = \\
+&\;\; \frac{(d_1-d_3)(d_1 X_1 - Y_1 - d_2 X_2 + Y_2) + (d_2 - d_1)(d_3 X_3 - Y_3 + d_1 X_1 - Y_1)}
+		{(d_1-d_3)(d_1 Y_1 + X_1 - d_2 Y_2 - X_2) + (d_2 - d_1)(d_3 Y_3 + X_3 + d_1 Y_1 + X_1)}  \\
+\end{align*}
+
+This is clunky so we can express it with some more structure in vector notation:
+\begin{align*}
+& \tan\theta = \\
+&\;\; \frac{
+(d_1-d_3)\left(\vect{d_1}{-1}^\top \vect{X_1}{Y_1} - \vect{d_2}{-1}^\top \vect{X_2}{Y_2} \right)
++ (d_2 - d_1)\left(\vect{d_3}{-1}^\top \vect{X_3}{Y_3} + \vect{d_1}{-1}^\top \vect{X_1}{Y_1} \right)
+}{
+(d_1-d_3)\left(\vect{1}{d_1}^\top \vect{X_1}{Y_1} - \vect{1}{d_2}^\top \vect{X_2}{Y_2} \right)
++ (d_2 - d_1)\left(\vect{1}{d_3}^\top \vect{X_3}{Y_3} + \vect{1}{d_1}^\top \vect{X_1}{Y_1} \right)
+}  \\
+\end{align*}
+Denote $D_i = \vect{1}{d_i}$ and $D_i^\perp = \vect{d_i}{-1}$ (since these are orthogonal vectors). 
+Also denote $\vec{X}_i = \vect{X_i}{Y_i}$. Then we see
+the structure even better:
+\begin{align*}
+& \tan\theta =\; \frac{
+(d_1-d_3)\left((D_1^\perp)^\top \vec{X}_1 - (D_2^\perp)^\top \vec{X}_2 \right)
++ (d_2 - d_1)\left((D_3^\perp)^\top \vec{X}_3 + (D_1^\perp)^\top \vec{X}_1 \right)
+}{
+(d_1-d_3)\left(D_1^\top \vec{X}_1 - D_2^\top \vec{X}_2 \right)
++ (d_2 - d_1)\left(D_3^\top \vec{X}_3 + D_1^\top \vec{X}_1 \right)
+}  \\
+\end{align*}
+
+We can express $t_x$ and $t_y$ in terms of $D_i$, $\vec{X}_i$ and $\theta$ (which is just too complicated to write
+out all the way in the equations):
+\begin{align*}
+& t_x = \frac{((D_1^\perp)^\top \vec{X}_1 - (D_2^\perp)^\top \vec{X}_2)}{d_2 - d_1}\cos\theta
+		+ \frac{(D_1^\top \vec{X}_1 - D_2^\top \vec{X}_2)}{d_2 - d_1}\sin\theta \\
+t_y =& \left( \frac{d_3((D_1^\perp)^\top \vec{X}_1 - (D_2^\perp)^\top \vec{X}_2)}{d_2 - d_1}
+	+ ((D_3^\perp)^\top \vec{X}_3) \right) \cos\theta \\
+& \;\;\; + \left( \frac{d_3(D_1^\top \vec{X}_1 - D_2^\top \vec{X}_2)}{d_2 - d_1}
+	+ (D_3^\top \vec{X}_3)\right) \sin\theta  \\
+\end{align*}
+
+
+\item[20pts]
+A robot knows the the gravity vector with respect to the camera coordinate system and the position of two points in world coordinates where $Y$-axis is aligned with gravity. 
+There is one unknown orientation $\theta$ in the unknown orientation matrix between camera and world coordinates. Assume that we have aligned the $Y$-axis of the camera with gravity so that the transformation from world to camera reads:
+\[
+\lambda \begin{pmatrix} x \\ y \\ 1 \end{pmatrix}  = \begin{pmatrix} \cos\theta & 0 & \sin\theta 
+\\ 0 & 1 & 0 
+\\ -\sin\theta & 0 & \cos\theta
+\end{pmatrix}
+ \begin{pmatrix} X \\ Y \\ Z \end{pmatrix} + \begin{pmatrix} t_x \\ t_y \\ t_z \end{pmatrix}.
+ \]
+Assume further that we know the projections of two points $(x_1,y_1)$ and $(x_2,y_2)$ 
+and the corresponding 3D world coordinates $(X_1,Y_1,Z_1)$ and $(X_2,Y_2,Z_2)$.
+After eliminating the depths $\lambda_i$ we have four equations with four unknowns 
+$(\theta,t_x,t_y,t_z)$.
+\begin{itemize}
+\item
+Express $\cos\theta$ and $\sin\theta$ so that there is only one unknown without a square-root.
+\item
+Translation unknowns appear linearly in the equations. Eliminate one or more of the translation unknowns and try to find an equation only with orientation as unknown.
+\end{itemize}
+\end{enumerate}
+
+First we use that this is linear in $t_x$, $t_y$, and $t_z$ to solve for these in terms of $\sin\theta$ and 
+$\cos\theta$. First we write out the equations, with $\lambda$ substituted in. Denote $c = \cos\theta$ and
+$s = \sin\theta$ for brevity. 
+\begin{align*}
+& (-s X_i + c Z_i + t_z)x_i = c X_i + s Z_i + t_x \\
+& (-s X_i + c Z_i + t_z)y_i = Y_i + t_y \\
+\implies
+& (-x_i X_i - Z_i) s + (x_i Z_i - X_i)c - t_x + x_i t_z = 0 \\
+& (- y_i X_i)s + (y_i Z_i)c - t_y + y_i t_z - Y_i = 0 \\
+\end{align*}
+So subtract these equation for the two points to get:
+\begin{align*}
+& (-x_1 X_1 - Z_1) s + (x_1 Z_1 - X_1)c - t_x + x_1 t_z = 0 \\
+& (-x_2 X_2 - Z_2) s + (x_2 Z_2 - X_2)c - t_x + x_2 t_z = 0 \\
+\implies 
+& (x_2 X_2 + Z_2-x_1 X_1 - Z_1) s + (-x_2 Z_2 + X_2 + x_1 Z_1 - X_1)c + (x_1-x_2) t_z = 0 \\
+\end{align*}
+And:
+\begin{align*}
+& (- y_1 X_1)s + (y_1 Z_1)c - t_y + y_1 t_z - Y_1 = 0 \\
+& (- y_2 X_2)s + (y_2 Z_2)c - t_y + y_2 t_z - Y_2 = 0 \\
+\implies 
+& (y_2 X_2 - y_1 X_1)s + (y_1 Z_1- y_2 Z_2)c + (y_1 - y_2) t_z - (Y_1 - Y_2) = 0 \\
+\end{align*}
+
+So now we combine the equations to get rid of $t_z$:
+\begin{align*}
+& (x_2 X_2 + Z_2-x_1 X_1 - Z_1) s + (-x_2 Z_2 + X_2 + x_1 Z_1 - X_1)c + (x_1-x_2) t_z = 0 \\
+& (y_2 X_2 - y_1 X_1)s + (y_1 Z_1- y_2 Z_2)c + (y_1 - y_2) t_z - (Y_1 - Y_2) = 0 \\
+\implies
+& \frac{(x_2 X_2 + Z_2-x_1 X_1 - Z_1) s + (-x_2 Z_2 + X_2 + x_1 Z_1 - X_1)c}{x_2-x_1} = \\
+&\;\;\;\; \frac{(y_2 X_2 - y_1 X_1)s + (y_1 Z_1- y_2 Z_2)c - (Y_1 - Y_2)}{y_2 - y_1} \\
+\implies
+& (y_2 - y_1)(x_2 X_2 + Z_2-x_1 X_1 - Z_1) s + (y_2 - y_1)(-x_2 Z_2 + X_2 + x_1 Z_1 - X_1)c = \\
+&\;\;\;\; (x_2-x_1)(y_2 X_2 - y_1 X_1)s + (x_2-x_1)(y_1 Z_1- y_2 Z_2)c - (x_2-x_1)(Y_1 - Y_2) \\
+\end{align*}
+We use the substitutions $A = x_2 X_2 + Z_2-x_1 X_1 - Z_1$, $B = -x_2 Z_2 + X_2 + x_1 Z_1 - X_1$,
+$C = y_2 X_2 - y_1 X_1$, $D = y_1 Z_1- y_2 Z_2$, and $E = Y_1 - Y_2$, 
+which are all knowns. The equation shortens to:
+\begin{align*}
+& (y_2 - y_1)A s + (y_2 - y_1)Bc = (x_2-x_1)Cs + (x_2-x_1)Dc - (x_2-x_1)E \\
+\implies
+& ((x_2-x_1)C-(y_2 - y_1)A) s + ((x_2-x_1)D-(y_2 - y_1)B)c = (x_2-x_1)E \\
+\end{align*}
+
+So now (plugging back in $c$ and $s$) we have:
+\begin{align*}
+& ((x_2-x_1)C-(y_2 - y_1)A) \sin\theta + ((x_2-x_1)D-(y_2 - y_1)B) \cos\theta = (x_2-x_1)E \\
+\end{align*}
+
+Here to get $\cos \theta$ and $\sin \theta$, we use the Tangent half-angle substitutions, which are:
+\begin{align*}
+& \gamma = \tan (\theta/2) \\
+& \cos\theta = \frac{2\gamma}{1+\gamma^2} \\
+& \sin\theta = \frac{1-\gamma^2}{1+\gamma^2} \\
+\end{align*}
+The derivations can be found on Wikipedia. Plugging these in we get: 
+\begin{align*}
+& ((x_2-x_1)C-(y_2 - y_1)A) \frac{1-\gamma^2}{1+\gamma^2} + ((x_2-x_1)D-(y_2 - y_1)B) \frac{2\gamma}{1+\gamma^2}
+	= (x_2-x_1)E \\
+\implies
+& ((x_2-x_1)C-(y_2 - y_1)A) (1-\gamma^2) + ((x_2-x_1)D-(y_2 - y_1)B) 2\gamma
+	= (x_2-x_1)E(1+\gamma^2) \\
+\implies
+&  ((x_2-x_1)E + (y_2 - y_1)A + (x_2-x_1)C)\gamma^2 \\
+& \;\;\; + 2 ((y_2 - y_1)B-(x_2-x_1)D) \gamma + ((x_2-x_1)E + (y_2 - y_1)A + (x_2-x_1)C) = 0\\
+\end{align*}
+
+So now we can solve this for $\gamma = \tan(\theta/2)$, using the quadratic equation.
+
+
+% So now we use both points to solve for $t_x$ and $t_y$:
+% \begin{align*}
+% & \frac{-y_1 Z_1}{x_1} s + \frac{-y_1 X_1}{x_1}c - \frac{y_1}{x_1} t_x + Y_i
+% = \frac{-y_2 Z_2}{x_2} s + \frac{-y_2 X_2}{x_2}c - \frac{y_2}{x_2} t_x + Y_2 \\
+% \implies 
+% & \left(\frac{y_2 Z_2}{x_2} - \frac{y_1 Z_1}{x_1} \right) s
+% 	+ \left(\frac{y_2 X_2}{x_2} - \frac{y_1 X_1}{x_1} \right) c + (Y_1 - Y_2) 
+% =  - \left(\frac{y_2}{x_2} - \frac{y_1}{x_1} \right) t_x \\
+% & t_x = \left(\frac{x_1 y_2 Z_2 - x_2 y_1 Z_1}{x_2 y_1 - x_1 y_2}\right) s
+% 	+ \left(\frac{x_1 y_2 X_2 - x_2 y_1 X_1}{x_2 y_1 - x_1 y_2}\right) c
+% 	+ \frac{x_1 x_2(Y_1 - Y_2)}{x_2 y_1 - x_1 y_2} \\
+% \end{align*}
+
+
+% \begin{align*}
+% \lambda \begin{pmatrix} x_i \\ y_i \\ 1 \end{pmatrix}  =&\;
+% \begin{pmatrix}
+% \frac{2\gamma}{1+\gamma^2} & 0 & \frac{1-\gamma^2}{1+\gamma^2}
+% \\ 0 & 1 & 0 
+% \\ -\frac{1-\gamma^2}{1+\gamma^2} & 0 & \frac{2\gamma}{1+\gamma^2}
+% \end{pmatrix}
+%  \begin{pmatrix} X_i \\ Y_i \\ Z_i \end{pmatrix} + \begin{pmatrix} t_x \\ t_y \\ t_z \end{pmatrix} \\
+% \implies \lambda \begin{pmatrix} x_i \\ y_i \\ 1 \end{pmatrix}  =&\;
+% \begin{pmatrix}
+% \frac{2\gamma}{1+\gamma^2} X_i + \frac{1-\gamma^2}{1+\gamma^2} Z_i + t_x
+% \\ Y_i + t_y
+% \\ -\frac{1-\gamma^2}{1+\gamma^2} X_i + \frac{2\gamma}{1+\gamma^2}Z_i + t_z
+% \end{pmatrix}  \\
+% \end{align*}
+
+% To get rid of the $\lambda$ term, take the dot product of the top two equations with $\vect{-y_i}{x_i}$ to get:
+% \begin{align*}
+% \lambda \vect{-y_i}{x_i}^\top \vect{x_i}{y_i}  =&\;
+% \vect{-y_i}{x_i}^\top
+% \begin{pmatrix}
+% \frac{2\gamma}{1+\gamma^2} X + \frac{1-\gamma^2}{1+\gamma^2} Z + t_x
+% \\ Y_i + t_y
+% \end{pmatrix} = 0 \\
+% \end{align*}
+
+% Plugging this in and separating the translation and angle parts, we get:
+% \begin{align*}
+% &\; -y_i \left(\frac{2\gamma}{1+\gamma^2} X + \frac{1-\gamma^2}{1+\gamma^2} Z + t_x \right) + x_i(Y + t_y) = 0 \\
+% \implies &\; -y_i g_i(\gamma) - y_i t_x  + x_i t_y  + x_i Y_i = 0 \\
+% \end{align*}
+
+% Now we combine this from both points to get an equation of only $\gamma$:
+% \begin{align*}
+% &\; -y_1 g_1(\gamma) - y_1 t_x  + x_1 t_y  + x_1 Y_1 = 0 \\
+% &\; -y_2 g_2(\gamma) - y_2 t_x  + x_2 t_y  + x_2 Y_2 = 0 \\
+% \implies 
+% &\; -(y_1/x_1) g_1(\gamma) - (y_1/x_1) t_x  + t_y + Y_1 = 0 \\
+% &\; -(y_2/x_2) g_2(\gamma) - (y_2/x_2) t_x  + t_y  + Y_2 = 0 \\
+% \implies 
+% &\; -(y_1/x_1) g_1(\gamma) +(y_2/x_2) g_2(\gamma) + (y_2/x_2 - y_1/x_1) t_x + (Y_1-Y_2) = 0 \\
+% \implies 
+% &\; t_x = -\frac{-(y_1/x_1) g_1(\gamma) +(y_2/x_2) g_2(\gamma) + (Y_1-Y_2)}{(y_2/x_2 - y_1/x_1)} \\
+% \end{align*}
+
+% So now we substitute for $\lambda$:
+% \begin{align*}
+% \begin{pmatrix}
+% (-\frac{1-\gamma^2}{1+\gamma^2} X_i + \frac{2\gamma}{1+\gamma^2}Z_i + t_z)x_i \\
+% (-\frac{1-\gamma^2}{1+\gamma^2} X_i + \frac{2\gamma}{1+\gamma^2}Z_i + t_z)y_i
+% \end{pmatrix} =&\; \begin{pmatrix}
+% \frac{2\gamma}{1+\gamma^2} X_i + \frac{1-\gamma^2}{1+\gamma^2} Z_i + t_x
+% \\ Y_i + t_y
+% \end{pmatrix}  \\
+% \begin{pmatrix}
+% \frac{(-x_i(1-\gamma^2) + 2\gamma)X_i+(2x_i\gamma -(1-\gamma^2)) Z_i}{1+\gamma^2} - t_x + x_i t_z \\
+% \frac{-y_i(1-\gamma^2)X_i + 2y_i \gamma Z_i}{1+\gamma^2} - t_y + y_i t_z - Y_i
+% \end{pmatrix} =&\; \begin{pmatrix}
+% 0
+% \\ 0
+% \end{pmatrix}  \\
+% \end{align*}
+
+% Now we substitute for $t_z$:
+% \begin{align*}
+% &\frac{(-x_i(1-\gamma^2) + 2\gamma)X_i+(2x_i\gamma -(1-\gamma^2)) Z_i}{x_i(1+\gamma^2)} - t_x/x_i =
+% \frac{-y_i(1-\gamma^2)X_i + 2y_i \gamma Z_i}{y_i(1+\gamma^2)} - t_y/y_i - Y_i/y_i \\
+% &\frac{(- x_i y_i(1-\gamma^2) + 2y_i \gamma)X_i+(2x_i y_i\gamma -y_i (1-\gamma^2)) Z_i}{1+\gamma^2} - y_i t_x =
+% \frac{-x_i y_i(1-\gamma^2)X_i + 2x_i y_i \gamma Z_i}{1+\gamma^2} - x_i t_y - x_i Y_i \\
+% &\frac{(2y_i \gamma)X_i -(y_i (1-\gamma^2)) Z_i}{1+\gamma^2} + x_i Y_i =
+% y_i t_x - x_i t_y  \\
+% \end{align*}
+
+\end{document}
