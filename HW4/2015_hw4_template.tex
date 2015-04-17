@@ -150,7 +150,7 @@ To take the trace of this we use the identity:
 \[ \mathbf{tr}(ab^\top) = a^\top b \]
 So:
 \begin{align*}
-\mathbf{tr}(S) 
+(r_3^\top t)^2 \mathbf{tr}(S) 
 =&\; \mathbf{tr}((r_1 \times t)(r_1 \times t)^\top + (t \times r_2)(t \times r_2)^\top
 		- \rho^2 r_3 r_3^\top) \\
 =&\; \mathbf{tr}((r_1 \times t)(r_1 \times t)^\top) + \mathbf{tr}((t \times r_2)(t \times r_2)^\top)
@@ -169,8 +169,8 @@ divided by the length of the hypotenuse). Plugging these in:
 \mathbf{tr}(S) 
 =&\; \|t\|^2 ((\sin(\theta_{r_1}))^2 + (\sin(\theta_{r_2}))^2) - \rho^2 \\
 =&\; \|t\|^2 \left(\left(\frac{r_3^\top t}{\|t\|}\right)^2 + 1\right) - \rho^2 \\
-=&\; r_3^\top t + \|t\|^2 - \rho^2 \\
-\implies &\; \|t\| = \sqrt{\mathbf{tr}(S) + \rho^2 - r_3^\top t} \\
+=&\; (r_3^\top t)^2 + \|t\|^2 - \rho^2 \\
+\implies &\; \|t\| = \sqrt{(r_3^\top t)^2\mathbf{tr}(S) + \rho^2 - (r_3^\top t)^2} \\
 \end{align*}
 
 So we now have the height of our camera and the distance from the origin, from which we can recover
