@@ -1,0 +1,112 @@
+\documentclass[11pt,english]{article}
+
+\usepackage[latin9]{inputenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{latexsym}
+\usepackage{xspace}
+\usepackage{pdflscape}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks]{hyperref}
+\usepackage{enumerate}
+\usepackage{ifthen}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes}
+\usepackage{algorithm2e}
+
+\newcommand{\rthree}{\mathbb{R}^3}
+\title{MEAM 620 Advanced Robotics: Assignment 5\\
+Due:  Wednesday April 8th}
+ \author{Stephen Phillips}
+\date{\today}
+
+\newcommand{\vect}[2]{\begin{pmatrix} #1 \\ #2 \end{pmatrix}}
+
+\begin{document}
+\maketitle
+
+\section*{Problem 1}
+\subsection{Part a}
+We simply implemented the continuous Kalman filter using Euler integration. The $C$ measurement
+matrix is just the identity.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partajerk.eps}
+  \caption{Jerk Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partaacc.eps}
+  \caption{Acceleration Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partavel.eps}
+  \caption{Velocity Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partapos.eps}
+  \caption{Position Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+\subsection{Part b}
+Now we change the measurement matrix $C$ to be the row vector $[0,0,0,1]$. Note that the lower derivatives other
+than position do poorly especially toward the end. Position does OK since we have measurements to filter it,
+but unfortunately for the velocity and acceleration, we cannot do much better than integrate the inputs. So we
+get worse estimates.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partbjerk.eps}
+  \caption{Jerk Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partbacc.eps}
+  \caption{Acceleration Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partbvel.eps}
+  \caption{Velocity Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{partbpos.eps}
+  \caption{Position Estimates. The black line is the true $x$, the cyan is the estimated $x$, with the noise in the background}
+\end{figure}
+
+
+\subsection{Part c}
+Now we change the measurement matrix $C$ to be the $3 \times 4$ matrix:
+\[
+C = \begin{pmatrix}
+	0 & 1 & 0 & 0 \\
+	0 & 0 & 1 & 0 \\
+	0 & 0 & 0 & 1 \\
+\end{pmatrix}
+\]
+
+This would give pretty good estimates for everything, even the position, since we have measurements for most of
+our state, our estimate for the position can be well approximated by integrating the higher derivatives, namely
+the velocity. So it would not diverge like the estimates in part b did. This shows how important it is to have
+good measurements, otherwise we cannot give back the whole state. 
+
+
+\end{document}
