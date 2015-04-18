@@ -48,7 +48,7 @@ persistent time_prev
 
 if isempty(mu)
     mu = zeros(n,1);
-    Sigma = eye(n);
+    Sigma = 3*eye(n);
     time_prev = 0;
 end
 
@@ -59,8 +59,6 @@ G = @(q) [cos(q(2)) 0 -cos(q(1))*sin(q(2));
 K = varargin{1};
 tagsX = varargin{2};
 tagsY = varargin{3};
-Q = eye(n); % TODO: tune this
-R = eye(n); % TODO: tune this
 
 v_m = vic.vel(1:3);
 w_m = vic.vel(4:6);
@@ -76,20 +74,22 @@ Z = [pos;eul];
 xdot = [v_m;
         inv(G(mu(4:6)))*(w_m - mu(7:9));
         zeros(3,1) ];
-J = ekf1jacobian(mu,w_m,zeros(3,1));
+J = ekf1jacobian(mu,w_m,zeros(n,1));
 F = eye(n) + dt*J;
 U = ekf1noisejacobian(mu);
 V = dt*U;
+Q = eye(n); % TODO: tune this
 % Measurement model - it is so nice to be linear isn't it?
-C = eye(6,9);
-W = eye(n);
+C = eye(6,n);
+W = eye(6);
+R = eye(6); % TODO: tune this
 
 % Predition
 mu_pred = mu + dt*xdot;
 Sigma_pred = F*Sigma*F' + V*Q*V';
     
 % Update
-K = Sigma_pred*C/(C*Sigma_pred*C' + W*R*W'); % Kalman gain
+K = Sigma_pred*C'/(C*Sigma_pred*C' + W*R*W'); % Kalman gain
 mu = mu_pred + K*(Z - C*mu_pred);
 Sigma = Sigma_pred - K*C*Sigma_pred;
 
