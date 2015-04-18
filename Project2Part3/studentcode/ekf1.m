@@ -88,6 +88,7 @@ Q = eye(n); % TODO: tune this
 % Measurement model - it is so nice to be linear isn't it?
 C = eye(6,n);
 W = eye(6);
+R = eye(6);
 
 % Predition
 mu_pred = mu + dt*xdot;
