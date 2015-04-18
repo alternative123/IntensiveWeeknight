@@ -27,6 +27,8 @@ function [pos, eul, R, T] = estimate_pose(sensor, K,tagsX,tagsY)
 if any(size(sensor.id) == 0)
     pos = [];
     eul = [];
+    R = [];
+    T = [];
     return
 end
 

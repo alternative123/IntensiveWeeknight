@@ -66,8 +66,14 @@ dt = vic.t - time_prev;
 time_prev = vic.t;
 
 % Measurements
+meas_recv = true;
 [pos, eul, ~, ~] = estimate_pose(sensor, K,tagsX,tagsY);
-Z = [pos;eul];
+if isempty(pos) || isempty(eul)
+    Z = zeros(6,1);
+    meas_recv = false;
+else
+    Z = [pos;eul];
+end
 
 % EKF part
 % Process model
@@ -82,16 +88,20 @@ Q = eye(n); % TODO: tune this
 % Measurement model - it is so nice to be linear isn't it?
 C = eye(6,n);
 W = eye(6);
-R = eye(6); % TODO: tune this
 
 % Predition
 mu_pred = mu + dt*xdot;
 Sigma_pred = F*Sigma*F' + V*Q*V';
     
 % Update
-K = Sigma_pred*C'/(C*Sigma_pred*C' + W*R*W'); % Kalman gain
-mu = mu_pred + K*(Z - C*mu_pred);
-Sigma = Sigma_pred - K*C*Sigma_pred;
+if meas_recv
+    K = Sigma_pred*C'/(C*Sigma_pred*C' + W*R*W'); % Kalman gain
+    mu = mu_pred + K*(Z - C*mu_pred);
+    Sigma = Sigma_pred - K*C*Sigma_pred;
+else
+    mu = mu_pred;
+    Sigma = Sigma_pred;
+end
 
 X = mu;
 
