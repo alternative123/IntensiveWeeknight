@@ -22,12 +22,15 @@ function [pos, eul, R, T] = estimate_pose(sensor, K,tagsX,tagsY)
 %   pos - 3x1 position of the quadrotor in world frame
 %   eul - 3x1 euler angles of the quadrotor
 
+
 % Check if we see any tags:
 if any(size(sensor.id) == 0)
     pos = [];
     eul = [];
     return
 end
+
+w_tag = 0.152; % Tag width
 
 ids = sensor.id+1; % April tag ids seen in this image
 % Create the points needed for the Homography estimation
