@@ -47,7 +47,7 @@ persistent Sigma
 persistent time_prev
 
 if isempty(mu)
-    mu = 0;
+    mu = zeros(n,1);
     Sigma = eye(n);
     time_prev = 0;
 end
