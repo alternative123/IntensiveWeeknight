@@ -78,8 +78,8 @@ a_m = sensor.acc;
 % EKF part
 % Process model
 xdot = [ mu(7:9);
-         (G(mu(4:6)))\(w_m - mu(10:12));
-         -g+R(mu(4:6))*(a_m - mu(13:15));
+         inv(G(mu(4:6)))*(w_m - mu(10:12));
+         g+R(mu(4:6))*(a_m - mu(13:15));
          zeros(3,1);
          zeros(3,1) ];
 % x_in,w_m_in,a_m_in,n_in
