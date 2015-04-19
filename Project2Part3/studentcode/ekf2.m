@@ -61,20 +61,21 @@ tagsX = varargin{2};
 tagsY = varargin{3};
 g = [0,0,9.81]';
 
-v_m = vic.vel(1:3);
-w_m = vic.vel(4:6);
-dt = vic.t - time_prev;
-time_prev = vic.t;
+dt = sensor.t - time_prev;
+time_prev = sensor.t;
+
+w_m = sensor.omg;
+a_m = sensor.acc;
 
 % EKF part
 % Process model
-xdot = [ x(7:9);
-         (G(x(4:6)))\(w_m - x(10:12));
-         -g+R(x(4:6))*(a_m - x(13:15));
+xdot = [ mu(7:9);
+         (G(mu(4:6)))\(w_m - mu(10:12));
+         -g+R(mu(4:6))*(a_m - mu(13:15));
          zeros(3,1);
          zeros(3,1) ];
-%     x_in,w_m_in,a_m_in,n_g_in,n_a_in
-J = ekf2jacobian(mu,w_m,a_m,zeros(n-3,1));
+% x_in,w_m_in,a_m_in,n_in
+J = ekf2jacobian(mu,w_m,a_m,zeros(n,1));
 F = eye(n) + dt*J;
 U = ekf2noisejacobian(mu);
 V = dt*U;
@@ -91,7 +92,7 @@ if sensor.is_ready && ~isempty(sensor.id)
     [vel, ~] = estimate_vel(sensor, K, tagsX, tagsY, R, T);
     Z = [pos; eul; vel];
 
-    % Create the measurement matrices
+    % Measurement model - it is so nice to be linear isn't it?
     C = eye(m,n);
     W = eye(m);
     R = eye(m);

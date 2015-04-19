@@ -40,6 +40,7 @@ function [X, Z] = ekf1(sensor, vic, varargin)
 %     measurement 
 
 n = 9; % Size of our state
+m = 6; % Size of our state
 
 % Persistent variables
 persistent mu
@@ -75,10 +76,6 @@ F = eye(n) + dt*J;
 U = ekf1noisejacobian(mu);
 V = dt*U;
 Q = eye(n); % TODO: tune this
-% Measurement model - it is so nice to be linear isn't it?
-C = eye(6,n);
-W = eye(6);
-R = eye(6);
 
 % Predition
 mu_pred = mu + dt*xdot;
@@ -89,6 +86,11 @@ if sensor.is_ready && ~isempty(sensor.id)
     % Got measurements
     [pos, eul, ~, ~] = estimate_pose(sensor, K,tagsX,tagsY);
     Z = [pos; eul];
+    
+    % Measurement model - it is so nice to be linear isn't it?
+    C = eye(m,n);
+    W = eye(m);
+    R = eye(m);
 
     % Do the update
     K = Sigma_pred*C'/(C*Sigma_pred*C' + W*R*W'); % Kalman gain
@@ -97,6 +99,7 @@ if sensor.is_ready && ~isempty(sensor.id)
 else
     mu = mu_pred;
     Sigma = Sigma_pred;
+    Z = zeros(m,1);
 end
 
 X = mu;
