@@ -105,6 +105,7 @@ else
     % No measurements - just use the prediction, we can't do better
     mu = mu_pred;
     Sigma = Sigma_pred;
+    Z = zeros(m,1);
 end
 
 X = mu;
