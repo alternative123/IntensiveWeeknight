@@ -41,4 +41,4 @@ tagsY = cumsum(tagsY,2);
 
 
 ekf1_handle = @(sensor, vic) ekf1(sensor, vic, K, tagsX, tagsY);
-ekf2_handle = @(sensor) ekf2(sensor);
+ekf2_handle = @(sensor) ekf2(sensor, K, tagsX, tagsY);

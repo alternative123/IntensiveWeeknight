@@ -65,20 +65,10 @@ w_m = vic.vel(4:6);
 dt = vic.t - time_prev;
 time_prev = vic.t;
 
-% Measurements
-meas_recv = true;
-[pos, eul, ~, ~] = estimate_pose(sensor, K,tagsX,tagsY);
-if isempty(pos) || isempty(eul)
-    Z = zeros(6,1);
-    meas_recv = false;
-else
-    Z = [pos;eul];
-end
-
 % EKF part
 % Process model
 xdot = [v_m;
-        inv(G(mu(4:6)))*(w_m - mu(7:9));
+        G(mu(4:6))\(w_m - mu(7:9));
         zeros(3,1) ];
 J = ekf1jacobian(mu,w_m,zeros(n,1));
 F = eye(n) + dt*J;
@@ -95,7 +85,12 @@ mu_pred = mu + dt*xdot;
 Sigma_pred = F*Sigma*F' + V*Q*V';
     
 % Update
-if meas_recv
+if sensor.is_ready && ~isempty(sensor.id)
+    % Got measurements
+    [pos, eul, ~, ~] = estimate_pose(sensor, K,tagsX,tagsY);
+    Z = [pos; eul];
+
+    % Do the update
     K = Sigma_pred*C'/(C*Sigma_pred*C' + W*R*W'); % Kalman gain
     mu = mu_pred + K*(Z - C*mu_pred);
     Sigma = Sigma_pred - K*C*Sigma_pred;

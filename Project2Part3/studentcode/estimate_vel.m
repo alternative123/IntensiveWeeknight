@@ -27,6 +27,9 @@ function [vel, omg] = estimate_vel(sensor, varargin)
 K = varargin{1};
 tagsX = varargin{2};
 tagsY = varargin{3};
+R_wc = varargin{4};
+T_wc = varargin{5};
+
 NSELECT_POINTS = 500;
 MIN_POINTS = 100;
 RANSAC_ITERS = 400;
@@ -58,14 +61,6 @@ if isempty(last_image)
     valid_state = true;
     vel = [0;0;0];
     omg = [0;0;0];
-    return
-end
-
-% Find pose
-[~, ~, R_wc, T_wc] = estimate_pose(sensor, K, tagsX, tagsY);
-if isempty(T_wc) || isempty(R_wc) % Invalid state
-    vel = [];
-    omg = [];
     return
 end
 
