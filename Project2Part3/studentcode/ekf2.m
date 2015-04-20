@@ -45,6 +45,13 @@ persistent time_prev
 
 if isempty(mu)
     mu = zeros(n,1);
+    % Set the bias
+    mu(10) = -0.0000120;
+    mu(11) = -0.0000260;
+    mu(12) = -0.0010920;
+    mu(13) = 0.1320661;
+    mu(14) = 0.0216428;
+    mu(15) = 9.7239545 - 9.81;
     Sigma = eye(n);
     time_prev = 0;
     clear estimate_vel
@@ -88,6 +95,12 @@ F = eye(n) + dt*J;
 U = ekf2noisejacobian(mu);
 V = dt*U;
 Q = eye(n); % TODO: tune this
+Q(10,10) = 0.0000039;
+Q(11,11) = 0.0000050;
+Q(12,12) = 0.0000044;
+Q(13,13) = 0.0002536;
+Q(14,14) = 0.0001434;
+Q(15,15) = 0.0001348;
 
 % Predition
 mu_pred = mu + dt*xdot;
