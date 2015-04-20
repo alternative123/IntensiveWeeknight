@@ -59,7 +59,7 @@ R = @(q) [cos(q(3))*cos(q(2)) - sin(q(1))*sin(q(3))*sin(q(2)), ...
      sin(q(1));...
      cos(q(3))*sin(q(2)) + cos(q(2))*sin(q(1))*sin(q(3)),...
      sin(q(3))*sin(q(2)) - cos(q(3))*cos(q(2))*sin(q(1)),...
-     cos(q(1))*cos(q(2))];
+     cos(q(1))*cos(q(2))]';
 
 G = @(q) [cos(q(2)) 0 -cos(q(1))*sin(q(2));
               0     1         0;
@@ -82,7 +82,7 @@ xdot = [ mu(7:9);
          -g+R(mu(4:6))*(a_m - mu(13:15));
          zeros(3,1);
          zeros(3,1) ];
-% x_in,w_m_in,a_m_in,n_in
+
 J = ekf2jacobian(mu,w_m,a_m,zeros(n,1));
 F = eye(n) + dt*J;
 U = ekf2noisejacobian(mu);
