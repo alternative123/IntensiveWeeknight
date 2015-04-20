@@ -116,6 +116,8 @@ else
     Z = zeros(m,1);
 end
 
-X = mu;
+% X = mu;
+% Reorder to get output right
+X = [mu(1:3); mu(7:9); mu(4:6); mu(10:end)];
 
 end
