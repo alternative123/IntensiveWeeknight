@@ -1,0 +1,49 @@
+
+Edge Features
+Def: Edge = Sharp changes in the image
+d/dt (I(x) * g(x)) = I(x) * dg(x)/dt
+Steerability - Gradient along angle theta I(x) = cos(theta) (I(x) * dg_x(x)/dt) + sin(theta) (I(x) * dg_y(x)/dt)
+
+Point Features
+Ideas: Autocorrelation matrix:
+sum_{x in N(x_0)} [ (I_x)^2, I_x I_y ]
+                  [ I_x I_y, (I_y)^2 ] 
+Eigenvalues of this determine how 'good' the corner is
+
+Optical Flow
+Solve:
+( sum_{x in N(x_0)} [ (I_x)^2, I_x I_y ] )^{-1} ( sum_{x in N(x_0)} Delta I(x) [ I_x ] )
+(                   [ I_x I_y, (I_y)^2 ] )      (                              [ I_y ] )
+
+Projective Geometry - Projective Transformation
+
+3D - 3D Pose = Procrustes
+||A - RB - T||_F^2
+
+PnP
+d_i^2 
+
+2D - 3D Pose
+
+3D Two Views
+
+3D Multiple Views
+
+3D Velocities
+
+Grouping of Features
+
+Filtering 
+
+Kalman Filter
+
+Extended Kalman Filter (EKF)
+
+Introduction to Motion Planning
+
+Probabilistic Planning
+
+Multi-Robot
+
+
+
